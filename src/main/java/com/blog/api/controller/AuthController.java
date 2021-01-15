@@ -1,22 +1,20 @@
 package com.blog.api.controller;
-
-import com.blog.api.model.SysUser;
+import com.blog.api.common.response.ResponseResult;
+import com.blog.api.common.response.ResponseUtil;
+import com.blog.api.dto.TokenDto;
+import com.blog.api.dto.LoginDto;
 import com.blog.api.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.security.PermitAll;
+
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     @Value("${jwt.header}")
@@ -25,32 +23,34 @@ public class AuthController {
     @Autowired
     private SysUserService authService;
 
+    @PermitAll()
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public Object createAuthenticationToken(
-            String username,String password
+    public ResponseResult<TokenDto> createToken(
+            @Validated @RequestBody LoginDto loginDto
     ) throws AuthenticationException {
+
+
+//        String username=JSONUtil.parseObj(param).get("username").toString();
+//        String password=JSONUtil.parseObj(param).get("password").toString();
+
         //  @RequestBody JwtAuthenticationRequest authenticationRequest
-        final String token = authService.login(username,password);
+        final TokenDto tokenDto = authService.login(loginDto.getAccount(), loginDto.getPassword());
 
         // Return the token
-        return token;
+        return ResponseUtil.success(tokenDto);
     }
 
-//    @RequestMapping(value = "/auth/refresh", method = RequestMethod.GET)
-//    public ResponseEntity<?> refreshAndGetAuthenticationToken(
-//            HttpServletRequest request) throws AuthenticationException{
-//        String token = request.getHeader(tokenHeader);
-//        String refreshedToken = authService.refresh(token);
-//        if(refreshedToken == null) {
-//            return ResponseEntity.badRequest().body(null);
-//        } else {
-//            return ResponseEntity.ok(new JwtAuthenticationResponse(refreshedToken));
-//        }
-//    }
-//
-//    @RequestMapping(value = "${jwt.route.authentication.register}", method = RequestMethod.POST)
-//    public SysUser register(@RequestBody SysUser addedUser) throws AuthenticationException{
-//        return authService.register(addedUser);
-//    }
+    @PermitAll()
+    @RequestMapping(value = "/refresh", method = RequestMethod.GET)
+    public ResponseResult<TokenDto> refreshToken(
+            String token
+    ) throws AuthenticationException {
+        //  @RequestBody JwtAuthenticationRequest authenticationRequest
+        final TokenDto tokenDto = authService.refreshToken(token);
+
+        // Return the token
+        return ResponseUtil.success(tokenDto);
+    }
+
 
 }

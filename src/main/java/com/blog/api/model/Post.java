@@ -103,7 +103,7 @@ public class Post extends BaseModel {
         this.commentNum = commentNum;
     }
 
-    private PublishState publishState ;
+    private PublishState publishState;
 
     private String author;
 
@@ -112,16 +112,16 @@ public class Post extends BaseModel {
 
     private String title;
 
-    private String content ;
+    private String content;
 
     //简介
-    private String  degest;
+    private String degest;
 
-    private String category ;
+    private String category;
 
     private long categoryId;
 
-    private int likes ;
+    private int likes;
 
 
     private int viewNum;

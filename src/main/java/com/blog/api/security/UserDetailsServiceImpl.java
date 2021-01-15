@@ -23,9 +23,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
 
-        SysUser user=userService.getByName(username);
+        SysUser user = userService.getByName(username);
 
-        if(user == null){
+        if (user == null) {
             throw new UsernameNotFoundException(String.format("'%s'.这个用户不存在", username));
         }
 //        List<SimpleGrantedAuthority> collect = user.getRoles().stream().map(Role::getRolename).map(SimpleGrantedAuthority::new).collect(Collectors.toList());

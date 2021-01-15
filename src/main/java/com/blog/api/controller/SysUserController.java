@@ -1,58 +1,76 @@
 package com.blog.api.controller;
 
+import com.blog.api.common.response.PageResult;
+import com.blog.api.common.response.ResponseResult;
+import com.blog.api.common.response.ResponseUtil;
+import com.blog.api.dto.UserDto;
 import com.blog.api.model.SysUser;
+import com.blog.api.service.RoleService;
 import com.blog.api.service.SysUserService;
+import com.blog.api.service.base.BaseService;
+import org.dozer.DozerBeanMapper;
+import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/sysUser")
-public class SysUserController {
+@RequestMapping("/api/user")
+public class SysUserController extends BaseController<UserDto,SysUser> {
 
     @Autowired
     private SysUserService userService;
-    @ResponseBody
-    
-    @RequestMapping("/hello")
-    public String hello(){
-        return "Hello World!";
+
+
+    @Autowired
+    public SysUserController(SysUserService service) {
+        super.baseService=service;
     }
 
-    @RequestMapping("/getAll")
-    public Iterable<SysUser> getAll(){
-       return userService.findAll();
-    }
 
- /*   @RequestMapping("/count")
-    public Iterable<SysUser> count(){
-        Specification<SysUser> specification=new Specification(){
-
-            @Override
-            public Predicate toPredicate(Root root, CriteriaQuery criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                return null;
-            }
-        }
-        return userService.findAll();
-    }*/
-
+    /**
+     * 分页列表
+     *
+     * @param pageRequest
+     * @param account
+     * @param nickName
+     * @return
+     */
     @RequestMapping("/list")
-    public Iterable<SysUser> list(){
-        Specification<SysUser> specification=(Specification<SysUser>) (root, criteriaQuery, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
-            predicates.add(cb.equal(root.get("nickName"),"213"));//对应SQL语句：select * from ### where username= code
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
-        };
-        return userService.getlistByWhere(specification);
+    public ResponseResult<PageResult<UserDto>> getUserList(
+            @PageableDefault(page = 0, value = 10, sort = {"createdAt"}, direction = Sort.Direction.DESC)
+                    Pageable pageRequest,
+            String account, String nickName) {
+        System.out.println(pageRequest);
+
+        var newPage =
+                PageRequest.of(Math.max(pageRequest.getPageNumber() - 1, 0), pageRequest.getPageSize(), pageRequest.getSort());
+
+        var page = userService.getUserList(account, nickName,
+                newPage);
+        System.out.println(page);
+        var res = page.map(n -> dozerMapper.map(n, UserDto.class));
+
+        var pageResult = PageResult.toPageResult(res);
+
+        return ResponseUtil.success(pageResult);
     }
+
+
+
 }

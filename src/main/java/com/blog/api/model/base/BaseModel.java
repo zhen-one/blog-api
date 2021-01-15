@@ -1,116 +1,49 @@
 package com.blog.api.model.base;
 
+import lombok.Data;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
+@Data
 @MappedSuperclass
+@DynamicInsert
+@DynamicUpdate
 public class BaseModel {
 
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
     //主键
-    private long id;
+    private int id;
 
     @Column
     private long creatorId;
 
     @Column
-    private Date createTime;
+    private Date createdAt;
 
     @Column
     private String creator;
 
     @Column
-    private Date lastUpdateTime;
+    private Date updatedAt;
 
     @Column
-    private long lastUpdateById;
+    private long updateById;
 
     @Column
-    private String lastUpdateBy;
+    private String updateBy;
 
     @Column
     private boolean isDeleted;
 
+
     @Column
     private boolean isEnable;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public long getCreatorId() {
-        return creatorId;
-    }
-
-    public void setCreatorId(long creatorId) {
-        this.creatorId = creatorId;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getCreator() {
-        return creator;
-    }
-
-    public void setCreator(String creator) {
-        this.creator = creator;
-    }
-
-    public Date getLastUpdateTime() {
-        return lastUpdateTime;
-    }
-
-    public void setLastUpdateTime(Date lastUpdateTime) {
-        this.lastUpdateTime = lastUpdateTime;
-    }
-
-    public long getLastUpdateById() {
-        return lastUpdateById;
-    }
-
-    public void setLastUpdateById(long lastUpdateById) {
-        this.lastUpdateById = lastUpdateById;
-    }
-
-    public String getLastUpdateBy() {
-        return lastUpdateBy;
-    }
-
-    public void setLastUpdateBy(String lastUpdateBy) {
-        this.lastUpdateBy = lastUpdateBy;
-    }
-
-
-
-    public boolean isDeleted() {
-        return isDeleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
-    }
-
-    public boolean isEnable() {
-        return isEnable;
-    }
-
-    public void setEnable(boolean enable) {
-        isEnable = enable;
-    }
-
 
 
 }

@@ -1,15 +1,18 @@
 package com.blog.api.security;
 
+import com.blog.api.security.jwt.JwtAccessDeniedHandler;
+import com.blog.api.security.jwt.JwtAuthenticationEntryPoint;
 import com.blog.api.security.jwt.JwtAuthenticationTokenFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -17,12 +20,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Slf4j
 @Configuration
-@EnableGlobalMethodSecurity(prePostEnabled=true)
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true,jsr250Enabled=true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -31,16 +34,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
-    @Autowired
-    private AuthenticationSuccessHandler successHandler;
-
-//    @Autowired
-//    private AuthenticationFailHandler failHandler;
-
 
 
     @Autowired
-    public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder)throws Exception{
+    JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    /*
+    认证失败终结点
+    * */
+    @Autowired
+    JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @Autowired
+    IgnoreUrlsConfig ignoreUrlsConfig;
+
+        @Autowired
+    public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
 //        authenticationManagerBuilder.userDetailsService(this.userDetailsService).passwordEncoder(passwordEncoder());
 
         authenticationManagerBuilder.userDetailsService(this.userDetailsService).passwordEncoder(NoOpPasswordEncoder.getInstance());
@@ -54,9 +62,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = http
+                .authorizeRequests();
+        //不需要保护的资源路径允许访问
+        for (String url : ignoreUrlsConfig.getUrls()) {
+            registry.antMatchers(url).permitAll();
+        }
+        http.csrf().disable().exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint).
+                accessDeniedHandler(jwtAccessDeniedHandler).and()
+                .cors()
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authorizeRequests()
-                .antMatchers("/auth/login").permitAll()
                 .anyRequest().authenticated()
                 .and().headers().cacheControl();
 

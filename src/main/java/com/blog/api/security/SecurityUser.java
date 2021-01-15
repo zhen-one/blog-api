@@ -6,7 +6,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 
 @Data
 public class SecurityUser implements UserDetails {
@@ -14,6 +13,31 @@ public class SecurityUser implements UserDetails {
 
 
     private long userid;
+
+    public long getUserid() {
+        return userid;
+    }
+
+    public void setUserid(long userid) {
+        this.userid = userid;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+        this.authorities = authorities;
+    }
+
     private String userName;
 
 
@@ -22,6 +46,8 @@ public class SecurityUser implements UserDetails {
 
 
     public SecurityUser(SysUser user) {
+
+
         if (null != user) {
             this.setUserName(user.getAccount());
             this.setPassword(user.getPassword());
@@ -30,6 +56,9 @@ public class SecurityUser implements UserDetails {
 //            this.setPermissions(user.getPermissions());
         }
     }
+
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;

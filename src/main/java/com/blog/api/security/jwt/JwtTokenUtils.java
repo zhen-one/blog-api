@@ -1,5 +1,6 @@
 package com.blog.api.security.jwt;
 
+import com.blog.api.dto.TokenDto;
 import com.blog.api.security.SecurityUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -25,10 +26,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Data
 @Component
-public class JwtTokenUtils  {
+public class JwtTokenUtils {
 
     @Autowired
-    private  JwtSecurityProperties jwtSecurityProperties;
+    private JwtSecurityProperties jwtSecurityProperties;
     private static final String AUTHORITIES_KEY = "auth";
     private String key;
 
@@ -38,22 +39,41 @@ public class JwtTokenUtils  {
     }
 
 
+    private TokenDto.Token createToken(Map<String, Object> claims, long expire) {
 
-    public  String createToken (Map<String, Object> claims) {
-        return Jwts.builder()
+
+        String token = Jwts.builder()
                 .addClaims(claims)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtSecurityProperties.getExpiration()*1000))
-                .signWith(SignatureAlgorithm.HS512,jwtSecurityProperties.getSecret())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtSecurityProperties.getExpiration() * 1000))
+                .signWith(SignatureAlgorithm.HS512, jwtSecurityProperties.getSecret())
                 .compact();
+
+        var tokenInfo = new TokenDto.Token();
+        tokenInfo.setExpire(expire);
+        tokenInfo.setToken(token);
+        return tokenInfo;
+
     }
-    public String createToken(SecurityUser user) {
+
+    private TokenDto.Token createToken(SecurityUser user) {
         Map<String, Object> claims = new HashMap<>(2);
         claims.put("sub", user.getUsername());
         claims.put("userid", user.getUserid());
         claims.put("created", new Date());
-        return createToken(claims);
+        long expire = jwtSecurityProperties.getExpiration() * 1000;
+        return createToken(claims, expire);
     }
+
+    private TokenDto.Token createRefreshToken(SecurityUser user) {
+        Map<String, Object> claims = new HashMap<>(2);
+        claims.put("sub", user.getUsername());
+        claims.put("userid", user.getUserid());
+        claims.put("created", new Date());
+        long expire = jwtSecurityProperties.getExpiration() * 1000 * 10;
+        return createToken(claims, expire);
+    }
+
     public Date getExpirationDateFromToken(String token) {
         Date expiration;
         try {
@@ -93,7 +113,7 @@ public class JwtTokenUtils  {
     private Claims getClaimsFromToken(String token) {
         Claims claims;
         try {
-            claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody();
+            claims = Jwts.parser().setSigningKey(this.getJwtSecurityProperties().getSecret()).parseClaimsJws(token).getBody();
         } catch (Exception e) {
             claims = null;
         }
@@ -116,6 +136,7 @@ public class JwtTokenUtils  {
         }
         return username;
     }
+
     /**
      * 判断令牌是否过期
      *
@@ -132,37 +153,69 @@ public class JwtTokenUtils  {
         }
     }
 
+
+    public TokenDto accessToken(SecurityUser user) {
+        var accessToken = this.createToken(user);
+        var refreshToken = this.createRefreshToken(user);
+        var tokenDto = new TokenDto();
+        tokenDto.setAccess_token(accessToken);
+        tokenDto.setRefresh_token(refreshToken);
+        return tokenDto;
+    }
+
     /**
      * 刷新令牌
      *
      * @param token 原令牌
      * @return 新令牌
      */
-    public String refreshToken(String token) {
-        String refreshedToken;
+    public TokenDto refreshToken(String token) {
+        long expire = jwtSecurityProperties.getExpiration() * 1000;
         try {
+
+            if (!validateToken(token) || this.isTokenExpired(token)) return null;
+
             Claims claims = getClaimsFromToken(token);
             claims.put("created", new Date());
-            refreshedToken = createToken(claims);
+            var accessToken = createToken(claims, expire);
+            var refreshToken = createToken(claims, expire * 10);
+            var tokenDto = new TokenDto();
+            tokenDto.setAccess_token(accessToken);
+            tokenDto.setRefresh_token(refreshToken);
+            return tokenDto;
         } catch (Exception e) {
-            refreshedToken = null;
+            return null;
         }
-        return refreshedToken;
+
     }
 
     /**
      * 验证令牌
      *
-     * @param token       令牌
-     * @param userDetails 用户
+     * @param token 令牌
      * @return 是否有效
      */
-    public Boolean validateToken(String token, SecurityUser userDetails) {
-        SecurityUser user = (SecurityUser) userDetails;
-        String username = getUsernameFromToken(token);
-        return (username.equals(user.getUsername()) && !isTokenExpired(token));
+    public Boolean validateToken(String token) {
+
+        try {
+            Jwts.parser().setSigningKey(this.jwtSecurityProperties.getSecret()).parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+
     }
 
+    public Boolean validateToken(String token, SecurityUser user) {
+
+
+        boolean userEqual = user.getUserName().equals(getUsernameFromToken(token));
+        boolean validate = validateToken(token);
+//         return  validateToken(token)&&user.getUserName()==getUsernameFromToken(token);
+        return userEqual && validate;
+
+    }
 
 
 }

@@ -13,7 +13,7 @@ import java.util.List;
  * @date 2021/1/9
  */
 @Repository
-public interface BaseRepository<T extends BaseModel, ID extends Serializable> extends JpaRepository<T, ID>,
+public interface BaseRepository<T extends BaseModel, ID extends Integer> extends JpaRepository<T, Integer>,
         JpaSpecificationExecutor<T> {
 
 
