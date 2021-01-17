@@ -7,8 +7,10 @@ import lombok.Data;
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Data
+@NotNull
 public class LoginDto extends BaseModel {
 
     @NotBlank(message = "账号不允许为空")

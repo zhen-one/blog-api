@@ -210,7 +210,7 @@ public class JwtTokenUtils {
     public Boolean validateToken(String token, SecurityUser user) {
 
 
-        boolean userEqual = user.getUserName().equals(getUsernameFromToken(token));
+        boolean userEqual = user.getUsername().equals(getUsernameFromToken(token));
         boolean validate = validateToken(token);
 //         return  validateToken(token)&&user.getUserName()==getUsernameFromToken(token);
         return userEqual && validate;
