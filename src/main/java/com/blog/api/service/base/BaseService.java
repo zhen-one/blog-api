@@ -55,7 +55,7 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
         entity.setCreatedAt(new Date());
         var user=getCurrentUser();
         if(user!=null){
-            entity.setCreator(user.getUserName());
+            entity.setCreator(user.getUsername());
             entity.setCreatorId(user.getUserid());
         }
         return dal.save(entity);
@@ -68,7 +68,7 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
         entity.setUpdatedAt(new Date());
         var user=getCurrentUser();
         if(user!=null){
-            entity.setUpdateBy(user.getUserName());
+            entity.setUpdateBy(user.getUsername());
             entity.setUpdateById(user.getUserid());
         }
         return dal.saveAndFlush(entity);
