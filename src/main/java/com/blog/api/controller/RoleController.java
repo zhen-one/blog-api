@@ -21,4 +21,6 @@ public class RoleController  extends BaseController<RoleDto, Role>{
     public RoleController(RoleService service) {
         super.baseService=service;
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.blog.api.dto;
 
+import com.blog.api.model.Role;
 import com.blog.api.model.base.BaseModel;
 import lombok.Data;
 
@@ -22,4 +23,8 @@ public class UserDto extends BaseModel {
 
 
     private int gender;
+
+    private int[] roleIds;
+
+    private Role[] roles;
 }

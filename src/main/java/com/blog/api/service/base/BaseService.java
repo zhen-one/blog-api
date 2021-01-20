@@ -1,8 +1,10 @@
 package com.blog.api.service.base;
 
 import com.blog.api.common.exception.BizException;
+import com.blog.api.model.SysUser;
 import com.blog.api.model.base.BaseModel;
 import com.blog.api.repo.base.BaseRepository;
+import com.blog.api.security.SecurityUser;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,14 +12,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.Predicate;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 @Service
@@ -25,33 +28,57 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
     protected BaseRepository<T, ID> dal;
 
-
-
-    public T beforeSave(T entity) {
-        if (entity.getCreatedAt() == null) {
-            entity.setCreatedAt(new Date());
-        }
-        return entity;
+    protected SecurityUser getCurrentUser() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return null;
+        return (SecurityUser) auth.getPrincipal();
     }
+
 
     /**
      * 等待重写
+     *
      * @param entity
      * @return
      */
 //    protected  abstract T beforeSaveNew(T entity);
+    public void beforeAdd(T entity) {
 
-    public T save(T entity) {
-        this.beforeSave(entity);
+    }
+
+    public void beforeEdit(T entity) {
+
+    }
+
+    public final T add(T entity) {
+        this.beforeAdd(entity);
+        entity.setCreatedAt(new Date());
+        var user=getCurrentUser();
+        if(user!=null){
+            entity.setCreator(user.getUserName());
+            entity.setCreatorId(user.getUserid());
+        }
         return dal.save(entity);
     }
 
+    ;
+
+    public final T edit(T entity) {
+        this.beforeEdit(entity);
+        entity.setUpdatedAt(new Date());
+        var user=getCurrentUser();
+        if(user!=null){
+            entity.setUpdateBy(user.getUserName());
+            entity.setUpdateById(user.getUserid());
+        }
+        return dal.saveAndFlush(entity);
+    }
+
+    ;
 
 
     public Iterable<T> saveAll(Iterable<T> entities) {
-        for (T e : entities) {
-            e = beforeSave(e);
-        }
+
         return dal.saveAll(entities);
     }
 
@@ -70,20 +97,21 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
     /**
      * 批量删除
+     *
      * @param ids
      */
-    public void deleteByIds(List<Integer> ids){
+    public void deleteByIds(List<Integer> ids) {
 
-        List<T> entities=new ArrayList<>();
-        ids.stream().forEach(id->dal.deleteById(id));
+        List<T> entities = new ArrayList<>();
+        ids.stream().forEach(id -> dal.deleteById(id));
     }
 
     public T getById(ID id) {
-       return dal.getOne(id);
+        return dal.getOne(id);
     }
 
 
-    public T existById(ID id){
+    public T existById(ID id) {
         return this.existById(id);
     }
 
@@ -102,6 +130,17 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
         return dal.findAll(specification, sort);
     }
 
+
+    /**
+     * 分页列表 抽象
+     *
+     * @param params
+     * @param pageable
+     * @return
+     */
+    public abstract Page<T> getPageList(T params, Pageable pageable);
+
+
     public List<T> getlistByWhere(Specification<T> specification) {
         return dal.findAll(specification);
     }
@@ -111,7 +150,14 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
     }
 
     public List<T> findAll() {
-        return dal.findAll();
+        Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) -> {
+            List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
+
+            predicates.add(cb.equal(root.get("isDeleted"),false));
+            predicates.add(cb.equal(root.get("isEnable"), true));
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
+        };
+        return dal.findAll(specification);
     }
 
 
@@ -135,7 +181,7 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
      * @param pageable
      * @return
      */
-    public Page<T> pageList(Specification<T> specification,Pageable pageable) {
+    public Page<T> pageList(Specification<T> specification, Pageable pageable) {
         return dal.findAll(specification, pageable);
     }
 

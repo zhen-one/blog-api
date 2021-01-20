@@ -23,5 +23,5 @@ public class RoleDto extends BaseModel {
     /**
      * 排序
      */
-    private int sort;
+    private int sortOrder;
 }

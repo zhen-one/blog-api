@@ -1,5 +1,6 @@
 package com.blog.api.controller;
 
+import com.blog.api.common.response.PageResult;
 import com.blog.api.common.response.ResponseResult;
 import com.blog.api.common.response.ResponseUtil;
 import com.blog.api.dto.UserDto;
@@ -10,6 +11,10 @@ import com.blog.api.service.base.BaseService;
 import javassist.NotFoundException;
 import org.dozer.DozerBeanMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -69,17 +74,17 @@ public abstract class BaseController<Dto extends BaseModel, Entity extends BaseM
     public ResponseResult<Dto> add(@Validated @RequestBody Dto dto) {
 
         var entity = (Entity) dozerMapper.map(dto, entityClass);
-        var user = baseService.save(entity);
+        var user = baseService.add(entity);
         var dtoRes = (Dto) dozerMapper.map(user, dtoClass);
         return ResponseUtil.success(dtoRes);
     }
 
     @RequestMapping("/getAll")
-    public List<Dto> getAll() {
-        return baseService.findAll()
+    public ResponseResult<List<Dto>>  getAll() {
+        return ResponseUtil.success(baseService.findAll()
                 .stream()
                 .map(n -> (Dto) (dozerMapper.map(n, dtoClass)))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -102,7 +107,7 @@ public abstract class BaseController<Dto extends BaseModel, Entity extends BaseM
      * @return
      * @throws NotFoundException
      */
-    @RequestMapping(value="/delete",method = RequestMethod.DELETE)
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public ResponseResult<Boolean> deleteByIds(@RequestBody List<Integer> ids) throws NotFoundException {
         baseService.deleteByIds(ids);
         return ResponseUtil.success(true);
@@ -119,12 +124,13 @@ public abstract class BaseController<Dto extends BaseModel, Entity extends BaseM
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     public ResponseResult<Dto> edit(@Validated @RequestBody Dto dto) throws NotFoundException {
         var entity = (Entity) dozerMapper.map(dto, entityClass);
-        return ResponseUtil.success((Dto) dozerMapper.map(baseService.save(entity), dtoClass));
+        return ResponseUtil.success((Dto) dozerMapper.map(baseService.edit(entity), dtoClass));
     }
 
 
     /**
      * 获取详情
+     *
      * @param id
      * @return
      * @throws NotFoundException
@@ -132,6 +138,25 @@ public abstract class BaseController<Dto extends BaseModel, Entity extends BaseM
     @GetMapping("/get")
     public ResponseResult<Dto> edit(int id) throws NotFoundException {
         return ResponseUtil.success((Dto) dozerMapper.map(baseService.getById(id), dtoClass));
+    }
+
+    @GetMapping("/list")
+    public ResponseResult<PageResult<Dto>> getPagelist(
+            @PageableDefault(page = 0, value = 10, sort = {"createdAt"}, direction = Sort.Direction.DESC)
+                    Pageable pageRequest, Dto dto) {
+
+        System.out.println(dto);
+        var newPage =
+                PageRequest.of(Math.max(pageRequest.getPageNumber() - 1, 0), pageRequest.getPageSize(), pageRequest.getSort());
+
+        var params = (Entity) dozerMapper.map(dto, entityClass);
+        var page = baseService.getPageList(params, newPage);
+        System.out.println(page);
+        var res = page.map(n -> (Dto)dozerMapper.map(n, dtoClass));
+
+        var pageResult = PageResult.toPageResult(res);
+
+        return ResponseUtil.success(pageResult);
     }
 
 }

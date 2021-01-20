@@ -5,7 +5,9 @@ import com.blog.api.common.exception.BizException;
 import com.blog.api.common.response.ResponseResult;
 import com.blog.api.common.response.ResponseUtil;
 import com.blog.api.dto.TokenDto;
+import com.blog.api.dto.UserDto;
 import com.blog.api.model.SysUser;
+import com.blog.api.model.UserRole;
 import com.blog.api.repo.SysUserRepository;
 import com.blog.api.security.AuthExceptionHelper;
 import com.blog.api.security.SecurityUser;
@@ -24,10 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +42,10 @@ public class SysUserService extends BaseService<SysUser, Integer> {
     @Autowired
     private UserDetailsService userDetailsService;
 
+
+
     @Autowired
-    public  SysUserService(SysUserRepository dal) {//这里必须要使用构造注入。
+    public SysUserService(SysUserRepository dal) {//这里必须要使用构造注入。
         super.dal = dal;
         this.dal = dal;
 
@@ -77,37 +78,57 @@ public class SysUserService extends BaseService<SysUser, Integer> {
         return jwtTokenUtil.refreshToken(token);
     }
 
+
     /**
-     * 重写添加方法
+     * 重写添加校验方法
+     *
      * @param entity
      * @return
      */
     @Override
-    public SysUser save(SysUser entity) {
+    public void beforeAdd(SysUser entity) {
         var findUser = this.dal.getUser(entity.getAccount());
         if (findUser != null) throw new BizException(String.format("用户[%s]已经存在!", entity.getAccount())
         );
-        return super.save(entity);
     }
 
-
     /**
-     * 系统用户分页列表
-     * @param account   账号
-     * @param nickName  昵称
+     * 重写修改校验方法
+     *
+     * @param entity
      * @return
      */
-    public Page<SysUser> getUserList(String account, String nickName, Pageable pageable) {
+    @Override
+    public void beforeEdit(SysUser entity) {
+
         Specification<SysUser> specification = (Specification<SysUser>) (root, criteriaQuery, cb) -> {
             List<Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
 
-            if (!StrUtil.isBlank(account))
-                predicates.add(cb.like(root.get("account"), "%"+account+"%"));
-
-            if (!StrUtil.isBlank(nickName))
-                predicates.add(cb.like(root.get("nickName"), "%"+nickName+"%"));
+            predicates.add(cb.notEqual(root.get("id"), entity.getId()));
+            predicates.add(cb.equal(root.get("account"), entity.getAccount()));
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
         };
-        return super.pageList(specification,pageable);
+        var findUser = this.dal.findAll(specification);
+        if (findUser != null&&!findUser.isEmpty())
+            throw new BizException(String.format("用户[%s]已经存在!", entity.getAccount())
+        );
     }
+
+    @Override
+    public Page<SysUser> getPageList(SysUser params, Pageable pageable) {
+        Specification<SysUser> specification = (Specification<SysUser>) (root, criteriaQuery, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
+
+            if (!StrUtil.isBlank(params.getAccount()))
+                predicates.add(cb.like(root.get("account"), "%" + params.getAccount() + "%"));
+
+            if (!StrUtil.isBlank(params.getNickName()))
+                predicates.add(cb.like(root.get("nickName"), "%" + params.getNickName() + "%"));
+
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
+        };
+        return super.pageList(specification, pageable);
+    }
+
+
 }
