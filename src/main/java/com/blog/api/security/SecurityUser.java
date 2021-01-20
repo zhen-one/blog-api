@@ -6,37 +6,20 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 @Data
 public class SecurityUser implements UserDetails {
 
 
 
-    private long userid;
+    private int userid;
 
-    public long getUserid() {
+    public int getUserid() {
         return userid;
     }
 
-    public void setUserid(long userid) {
-        this.userid = userid;
-    }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
-        this.authorities = authorities;
-    }
 
     private String userName;
 
@@ -45,15 +28,12 @@ public class SecurityUser implements UserDetails {
     private Collection<? extends GrantedAuthority> authorities;
 
 
-    public SecurityUser(SysUser user) {
-
+    public SecurityUser(SysUser user, List<? extends GrantedAuthority> authorities) {
 
         if (null != user) {
             this.setUserName(user.getAccount());
             this.setPassword(user.getPassword());
-//            this.setStatus(user.getStatus());
-//            this.setRoles(user.getRoles());
-//            this.setPermissions(user.getPermissions());
+            this.setAuthorities(authorities);
         }
     }
 
@@ -61,7 +41,7 @@ public class SecurityUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return this.authorities;
     }
 
     @Override

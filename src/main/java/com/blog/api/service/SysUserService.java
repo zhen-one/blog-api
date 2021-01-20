@@ -62,9 +62,10 @@ public class SysUserService extends BaseService<SysUser, Integer> {
 
         try {
             final Authentication authentication = authenticationManager.authenticate(upToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+//                SecurityContextHolder.getContext().setAuthentication(authentication);
+//           var context= SecurityContextHolder.getContext();
             // Reload password post-security so we can generate token
-            final UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+            final UserDetails userDetails =(UserDetails) authentication.getPrincipal();
             final TokenDto tokenDto = jwtTokenUtil.accessToken((SecurityUser) userDetails);
             return tokenDto;
         } catch (Exception ex) {

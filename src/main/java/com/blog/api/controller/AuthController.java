@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.PermitAll;
+import javax.validation.constraints.NotNull;
 
 
 @RestController
@@ -26,7 +27,7 @@ public class AuthController {
     @PermitAll()
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseResult<TokenDto> createToken(
-            @Validated @RequestBody LoginDto loginDto
+            @Validated  @RequestBody LoginDto loginDto
     ) throws AuthenticationException {
 
 

@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,12 +21,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Slf4j
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true,jsr250Enabled=true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -33,7 +35,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
-
 
 
     @Autowired
@@ -44,14 +45,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
+
+    @Autowired
+    DynamicAccessDecisionManager dynamicAccessDecisionManager;
+
     @Autowired
     IgnoreUrlsConfig ignoreUrlsConfig;
 
-        @Autowired
+
+
+    @Autowired
     public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
 //        authenticationManagerBuilder.userDetailsService(this.userDetailsService).passwordEncoder(passwordEncoder());
 
         authenticationManagerBuilder.userDetailsService(this.userDetailsService).passwordEncoder(NoOpPasswordEncoder.getInstance());
+
+
     }
 
     @Bean
@@ -68,17 +77,28 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         for (String url : ignoreUrlsConfig.getUrls()) {
             registry.antMatchers(url).permitAll();
         }
+
         http.csrf().disable().exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint).
                 accessDeniedHandler(jwtAccessDeniedHandler).and()
                 .cors()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().authorizeRequests()
-                .anyRequest().authenticated()
+                .and().authorizeRequests().withObjectPostProcessor(
+                        new ObjectPostProcessor<FilterSecurityInterceptor>() {
+                            @Override
+                            public <O extends FilterSecurityInterceptor> O postProcess(O o) {
+                               o.setAccessDecisionManager(dynamicAccessDecisionManager);
+                               return o;
+                            }
+                        })
+                .anyRequest()
+                .authenticated()
                 .and().headers().cacheControl();
 
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
+
 
     }
 
