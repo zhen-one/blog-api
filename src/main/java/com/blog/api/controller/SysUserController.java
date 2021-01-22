@@ -11,6 +11,8 @@ import com.blog.api.service.RoleService;
 import com.blog.api.service.SysUserService;
 import com.blog.api.service.UserRoleService;
 import com.blog.api.service.base.BaseService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import javassist.NotFoundException;
 import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
@@ -37,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Api(value = "用户接口")
 @RestController
 @RequestMapping("/api/user")
 public class SysUserController extends BaseController<UserDto, SysUser> {
@@ -53,7 +56,8 @@ public class SysUserController extends BaseController<UserDto, SysUser> {
         super.baseService = service;
     }
 
-
+    /* 方法注解 */
+    @ApiOperation(value = "添加用户", notes = "")
     @Override
     @Transactional
     public ResponseResult<UserDto> add(@Validated @RequestBody UserDto userDto) {

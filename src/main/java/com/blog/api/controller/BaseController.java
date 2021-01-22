@@ -79,7 +79,7 @@ public abstract class BaseController<Dto extends BaseModel, Entity extends BaseM
         return ResponseUtil.success(dtoRes);
     }
 
-    @RequestMapping("/getAll")
+    @RequestMapping(value = "/getAll",method = RequestMethod.GET)
     public ResponseResult<List<Dto>>  getAll() {
         return ResponseUtil.success(baseService.findAll()
                 .stream()
