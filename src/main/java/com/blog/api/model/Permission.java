@@ -2,16 +2,21 @@ package com.blog.api.model;
 
 import com.blog.api.model.base.BaseModel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /*
 权限表（菜单|按钮）
 * */
-@Data
+@Setter
+@Getter
 @Table
 @Entity
 public class Permission extends BaseModel {
@@ -41,8 +46,13 @@ public class Permission extends BaseModel {
     //上级ID
     private int parentId;
 
-    //接口url 默认 一个权限对应一个接口
-    private String functionUrl;
+
+    @OneToOne
+    @JoinColumn(name="api_id",referencedColumnName="id")
+    private Api api;
+
+
+
 
 
 }

@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @NotNull
-public class LoginDto extends BaseModel {
+public class LoginDto extends BaseDto {
 
     @NotBlank(message = "账号不允许为空")
     private String account;

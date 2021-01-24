@@ -39,7 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Api(value = "用户接口")
+@Api(value = "用户管理")
 @RestController
 @RequestMapping("/api/user")
 public class SysUserController extends BaseController<UserDto, SysUser> {

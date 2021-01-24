@@ -39,26 +39,10 @@ public class Role extends BaseModel {
     /*排序*/
     private int sortOrder;
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null)
-            return false;
-        if (this == obj)
-            return true;
-        if(obj instanceof Role){
-           var newRole= (Role)obj;
-           return newRole.getId()==super.getId();
-        }
-        return false;
-    }
-
-    /**
-     * 重写hashcode方法，返回的hashCode一样才再去比较每个属性的值
-     */
-    @Override
-    public int hashCode() {
-        return Integer.valueOf(this.getId()).hashCode();
-    }
+    @ManyToMany(cascade = CascadeType.MERGE)
+    @JoinTable(name="role_permission_rel",joinColumns = @JoinColumn(name ="role_id"),
+            inverseJoinColumns = @JoinColumn(name="permission_id"))
+    private Set<Permission> permissions=new HashSet<>();
 
 
 }

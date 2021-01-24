@@ -8,7 +8,7 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class UserDto extends BaseModel {
+public class UserDto extends BaseDto {
 
     @NotBlank(message = "账号不允许为空")
     private String account;

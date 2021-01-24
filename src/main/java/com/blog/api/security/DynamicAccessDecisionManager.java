@@ -1,6 +1,8 @@
 package com.blog.api.security;
 
+import com.blog.api.model.Api;
 import com.blog.api.model.Permission;
+import com.blog.api.service.ApiService;
 import com.blog.api.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDecisionManager;
@@ -27,6 +29,10 @@ public class DynamicAccessDecisionManager implements AccessDecisionManager {
     @Autowired
     private PermissionService permissionService;
 
+
+    @Autowired
+    private ApiService apiService;
+
     @Autowired
     IgnoreUrlsConfig ignoreUrlsConfig;
     /**
@@ -45,10 +51,16 @@ public class DynamicAccessDecisionManager implements AccessDecisionManager {
         FilterInvocation fi = (FilterInvocation) o;
         String url = fi.getRequestUrl();//获取请求Url
 
+
+        //需要权限访问的接口列表
+        var managedApis= apiService.getByUrl(url);
+
         //請求的地址 在數據庫中不存在 跳過權限校驗
-        if(permissionService.getPermissionByurl(url)==null){
-            return;
-        }
+        if(managedApis.size()==0)return;;
+
+
+
+//        if(managedApis.stream().filter(n->n.getUrl()==url).count()==0)return;;
 
         //当前登录用户
         SecurityUser userDetails =(SecurityUser) authentication.getPrincipal();
@@ -73,7 +85,9 @@ public class DynamicAccessDecisionManager implements AccessDecisionManager {
         //根据url进行权限匹配
         for(Permission permission :permissions){
 
-            boolean matched=  matcher.match(permission.getFunctionUrl(),url);
+            Api api=permission.getApi();
+            if(api==null)continue;
+            boolean matched=  matcher.match(api.getUrl(),url);
             if(matched){
                return;
             }

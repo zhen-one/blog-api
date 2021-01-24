@@ -3,6 +3,7 @@ package com.blog.api.controller;
 import com.blog.api.common.response.PageResult;
 import com.blog.api.common.response.ResponseResult;
 import com.blog.api.common.response.ResponseUtil;
+import com.blog.api.dto.BaseDto;
 import com.blog.api.dto.UserDto;
 import com.blog.api.model.SysUser;
 import com.blog.api.model.base.BaseModel;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-public abstract class BaseController<Dto extends BaseModel, Entity extends BaseModel> {
+public abstract class BaseController<Dto extends BaseDto, Entity extends BaseModel> {
 
 
     protected BaseService<Entity, Integer> baseService;

@@ -1,5 +1,6 @@
 package com.blog.api.service;
 
+import com.blog.api.model.Api;
 import com.blog.api.model.Permission;
 import com.blog.api.model.base.BaseModel;
 import com.blog.api.repo.PermissionRepository;
@@ -15,7 +16,7 @@ import java.util.List;
 
 
 @Service
-public class PermissionService extends BaseService {
+public class PermissionService extends BaseService<Permission, Integer>{
 
     private PermissionRepository dal;
 
@@ -29,7 +30,7 @@ public class PermissionService extends BaseService {
     public List<Permission> getPermissionByUserid(int id){
         var a= new ArrayList<Permission>() ;
         var p=new Permission();
-        p.setFunctionUrl("/api/user/getAll");
+        p.setApi(new Api("/api/user/getAll"));
         a.add(p);
         return a;
 
@@ -43,7 +44,7 @@ public class PermissionService extends BaseService {
     }
 
     @Override
-    public Page getPageList(BaseModel params, Pageable pageable) {
+    public Page<Permission> getPageList(Permission params, Pageable pageable) {
         return null;
     }
 }

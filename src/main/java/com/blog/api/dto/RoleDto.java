@@ -1,11 +1,15 @@
 package com.blog.api.dto;
 
+import com.blog.api.model.Permission;
 import com.blog.api.model.base.BaseModel;
 import lombok.Data;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Data
-public class RoleDto extends BaseModel {
+public class RoleDto extends BaseDto {
 
 
 
@@ -24,4 +28,9 @@ public class RoleDto extends BaseModel {
      * 排序
      */
     private int sortOrder;
+
+    private int[] permissionIds;
+
+    private Permission[] permissions;
+
 }

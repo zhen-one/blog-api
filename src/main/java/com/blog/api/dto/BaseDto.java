@@ -1,49 +1,35 @@
-package com.blog.api.model.base;
+package com.blog.api.dto;
 
 import com.blog.api.model.Role;
 import lombok.Data;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.util.Date;
-import java.util.Optional;
 
 @Data
-@MappedSuperclass
-@DynamicInsert
-@DynamicUpdate
-public class BaseModel {
+public class BaseDto {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name = "id")
+
     //主键
     private int id;
 
-    @Column
     private long creatorId;
 
-    @Column
     private Date createdAt;
 
-    @Column
     private String creator;
 
-    @Column
     private Date updatedAt;
 
-    @Column
     private long updateById;
 
-    @Column
     private String updateBy;
 
-    @Column
     private boolean isDeleted;
 
-    @Column
     private boolean isEnable;
 
     @Override
@@ -66,5 +52,4 @@ public class BaseModel {
     public int hashCode() {
         return Integer.valueOf(this.getId()).hashCode();
     }
-
 }

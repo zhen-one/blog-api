@@ -132,6 +132,20 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
 
     /**
+     * 启用/未删除 列表
+     * @return
+     */
+    public List<T> getEnabledList(){
+        Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) -> {
+            List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
+
+            predicates.add(cb.equal(root.get("isDeleted"),false));
+            predicates.add(cb.equal(root.get("isEnable"), true));
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
+        };
+        return dal.findAll(specification);
+    }
+    /**
      * 分页列表 抽象
      *
      * @param params
@@ -149,15 +163,13 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
         return dal.count(specification);
     }
 
+    /**
+     * 全部数据
+     * @return
+     */
     public List<T> findAll() {
-        Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) -> {
-            List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
 
-            predicates.add(cb.equal(root.get("isDeleted"),false));
-            predicates.add(cb.equal(root.get("isEnable"), true));
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
-        };
-        return dal.findAll(specification);
+        return dal.findAll();
     }
 
 
