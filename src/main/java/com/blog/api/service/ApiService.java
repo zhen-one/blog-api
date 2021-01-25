@@ -40,7 +40,7 @@ public class ApiService extends BaseService<Api, Integer> {
             List<Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
 
             if (!StrUtil.isBlank(url))
-                predicates.add(cb.like(root.get("apiName"), "%" + url + "%"));
+                predicates.add(cb.like(root.get("name"), "%" + url + "%"));
 
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
         };

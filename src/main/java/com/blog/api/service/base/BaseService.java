@@ -1,12 +1,12 @@
 package com.blog.api.service.base;
 
 import com.blog.api.common.exception.BizException;
-import com.blog.api.model.SysUser;
+import com.blog.api.common.util.GenericUtil;
 import com.blog.api.model.base.BaseModel;
 import com.blog.api.repo.base.BaseRepository;
 import com.blog.api.security.SecurityUser;
 import javassist.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.query.criteria.internal.predicate.LikePredicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,13 +15,16 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import java.io.Serializable;
+import javax.persistence.criteria.Root;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public abstract class BaseService<T extends BaseModel, ID extends Integer> {
@@ -34,6 +37,11 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
         return (SecurityUser) auth.getPrincipal();
     }
 
+    private Class<?> entityClass;
+
+    public BaseService() {
+        this.entityClass = GenericUtil.getActualTypeArgument(this, 0);
+    }
 
     /**
      * 等待重写
@@ -42,19 +50,64 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
      * @return
      */
 //    protected  abstract T beforeSaveNew(T entity);
+    private void uniqueCheck(T entity, boolean isEdit) {
+
+        Field[] fields = entityClass.getDeclaredFields();
+
+        Arrays.stream(fields).forEach(
+                field -> {
+
+                    if (field.isAnnotationPresent(com.blog.api.common.anotation.Field.class)) {
+                        com.blog.api.common.anotation.Field fieldAnnonation =
+                                field.getAnnotation(com.blog.api.common.anotation.Field.class);
+                        field.setAccessible(true);
+                        if (fieldAnnonation.unique()) {
+                            try {
+                                Object val = field.get(entity);
+                                Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) -> {
+
+                                    List<Predicate> predicates = new ArrayList<>();
+
+                                    var predict = cb.equal(root.get(field.getName()), val);
+                                    predicates.add(predict);
+                                    if (isEdit) {
+                                        predicates.add(cb.notEqual(root.get("id"), entity.getId()));
+                                    }
+                                    return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
+
+
+                                };
+                                long resCount = this.dal.count(specification);
+                                if (resCount > 0) {
+                                    throw new BizException(String.format("%s[%s]已经存在!", fieldAnnonation.description(), val));
+                                }
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+                }
+        );
+
+
+    }
+
     public void beforeAdd(T entity) {
+
+        uniqueCheck(entity, false);
 
     }
 
     public void beforeEdit(T entity) {
-
+        uniqueCheck(entity, true);
     }
 
     public final T add(T entity) {
         this.beforeAdd(entity);
         entity.setCreatedAt(new Date());
-        var user=getCurrentUser();
-        if(user!=null){
+        var user = getCurrentUser();
+        if (user != null) {
             entity.setCreator(user.getUsername());
             entity.setCreatorId(user.getUserid());
         }
@@ -66,8 +119,8 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
     public final T edit(T entity) {
         this.beforeEdit(entity);
         entity.setUpdatedAt(new Date());
-        var user=getCurrentUser();
-        if(user!=null){
+        var user = getCurrentUser();
+        if (user != null) {
             entity.setUpdateBy(user.getUsername());
             entity.setUpdateById(user.getUserid());
         }
@@ -133,18 +186,21 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
     /**
      * 启用/未删除 列表
+     *
      * @return
      */
-    public List<T> getEnabledList(){
+    public List<T> getEnabledList() {
         Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) -> {
             List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
 
-            predicates.add(cb.equal(root.get("isDeleted"),false));
+            predicates.add(cb.equal(root.get("isDeleted"), false));
             predicates.add(cb.equal(root.get("isEnable"), true));
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
         };
         return dal.findAll(specification);
+
     }
+
     /**
      * 分页列表 抽象
      *
@@ -152,7 +208,67 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
      * @param pageable
      * @return
      */
-    public abstract Page<T> getPageList(T params, Pageable pageable);
+    public Page<T> getPageList(T params, Pageable pageable) {
+        Field[] fields = entityClass.getDeclaredFields();
+
+        List<Specification<T>> specifications = new ArrayList<>();
+
+        Specification<T> specificationTotal=new Specification<T>() {
+            @Override
+            public Predicate toPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                return null;
+            }
+        };
+        List<Field> aa=new ArrayList<>();
+
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(com.blog.api.common.anotation.Field.class)) {
+                com.blog.api.common.anotation.Field fieldAnnonation =
+                        field.getAnnotation(com.blog.api.common.anotation.Field.class);
+                if (fieldAnnonation.query()) {
+                    try {
+                        field.setAccessible(true);
+                        Object val = field.get(params);
+
+                        if(val==null)continue;
+
+                        Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) -> {
+
+                            Predicate predict = null;
+
+                            switch (fieldAnnonation.queryOp()) {
+                                case equal: {
+                                    predict = cb.equal(root.get(field.getName()), val);
+                                    break;
+                                }
+                                case like: {
+                                    predict = cb.like(root.get(field.getName()), "%" + val + "%");
+                                    break;
+                                }
+                                case greaterThan: {
+                                    break;
+                                }
+                            }
+
+                            return predict;
+                        };
+                        specificationTotal= specificationTotal.and(specification);
+                        specifications.add(specification);
+
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }
+
+
+//        Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) ->
+//                cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
+        return this.pageList(specificationTotal, pageable);
+
+    }
 
 
     public List<T> getlistByWhere(Specification<T> specification) {
@@ -165,6 +281,7 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
     /**
      * 全部数据
+     *
      * @return
      */
     public List<T> findAll() {

@@ -1,6 +1,7 @@
 package com.blog.api.dto;
 
 import com.blog.api.model.Permission;
+import com.blog.api.model.Role;
 import com.blog.api.model.base.BaseModel;
 import lombok.Data;
 
@@ -32,5 +33,18 @@ public class RoleDto extends BaseDto {
     private int[] permissionIds;
 
     private Permission[] permissions;
+
+    @Override
+    public boolean equals(Object obj) {
+      return super.equals(obj);
+    }
+
+    /**
+     * 重写hashcode方法，返回的hashCode一样才再去比较每个属性的值
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
 }

@@ -82,18 +82,30 @@ public class SysUserController extends BaseController<UserDto, SysUser> {
     @Override
     @Transactional
     public ResponseResult<UserDto> edit(@Validated @RequestBody UserDto userDto) throws NotFoundException {
-        //先删除所有角色
-        var userRoles = userRoleService.getUserRoles(userDto.getId());
-        userRoleService.deleteByIds(userRoles.stream().map(n -> n.getId()).collect(Collectors.toList()));
+//        //先删除所有角色
+//        var userRoles = userRoleService.getUserRoles(userDto.getId());
+//        userRoleService.deleteByIds(userRoles.stream().map(n -> n.getId()).collect(Collectors.toList()));
+//
+//        //再添加角色
+//        Arrays.stream(userDto.getRoleIds()).forEach(n -> {
+//            userRoleService.add(new UserRole(userDto.getId(), n));
+//
+//        });
+//
+//        var editUser = userService.edit((SysUser) super.dozerMapper.map(userDto, SysUser.class));
+//        return ResponseUtil.success(super.dozerMapper.map(editUser, UserDto.class));
 
-        //再添加角色
+        var newUser=(SysUser) super.dozerMapper.map(userDto, SysUser.class);
+        newUser.setRoles(new HashSet<>());
+
         Arrays.stream(userDto.getRoleIds()).forEach(n -> {
-            userRoleService.add(new UserRole(userDto.getId(), n));
+            var role=new Role();
+            role.setId(n);
+            newUser.getRoles().add(role);
+//            userRoleService.add(new UserRole(newUser.getId(), n));
 
         });
-
-        var editUser = userService.edit((SysUser) super.dozerMapper.map(userDto, SysUser.class));
-        return ResponseUtil.success(super.dozerMapper.map(editUser, UserDto.class));
+        return ResponseUtil.success(super.dozerMapper.map(userService.edit(newUser), UserDto.class));
     }
 
 }

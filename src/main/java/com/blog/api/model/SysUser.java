@@ -1,5 +1,6 @@
 package com.blog.api.model;
 
+import com.blog.api.common.anotation.Field;
 import com.blog.api.model.base.BaseModel;
 import lombok.Data;
 import lombok.Getter;
@@ -23,9 +24,11 @@ public class SysUser extends BaseModel {
 
 
 
+    @Field(description = "账户",unique = true,query = true,queryOp = Field.Operator.like)
     @Column
     private String account;
 
+    @Field(description = "昵称",unique = true,query = true,queryOp = Field.Operator.like)
     @Column
     private String nickName;
 

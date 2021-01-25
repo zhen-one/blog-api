@@ -4,6 +4,8 @@ import cn.hutool.core.util.StrUtil;
 import com.blog.api.security.SecurityUser;
 import com.blog.api.security.UserDetailsServiceImpl;
 
+import com.blog.api.security.exception.TokenExpiredException;
+import com.blog.api.security.exception.TokenInvalidException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +26,6 @@ import java.io.IOException;
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
 
-
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
@@ -35,24 +36,34 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
-       var header=jwtTokenUtil.getJwtSecurityProperties().getHeader();
+        var header = jwtTokenUtil.getJwtSecurityProperties().getHeader();
         String authHeader = request.getHeader(header);
         if (authHeader != null && !StrUtil.isBlank(authHeader)) {
-           if(authHeader.startsWith("Bearer")){
-               authHeader=authHeader.substring(7);
-               String username = jwtTokenUtil.getUsernameFromToken(authHeader);
-               log.info(username);
+            if (authHeader.startsWith("Bearer")) {
+                authHeader = authHeader.substring(7);
+                String username = jwtTokenUtil.getUsernameFromToken(authHeader);
+                log.info(username);
 
-               var context=SecurityContextHolder.getContext();
-               if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                   UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-                   if (jwtTokenUtil.validateToken(authHeader, (SecurityUser)userDetails)) {
-                       UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                       authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                       SecurityContextHolder.getContext().setAuthentication(authentication);
-                   }
-               }
-           }
+                var context = SecurityContextHolder.getContext();
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+//                    if (jwtTokenUtil.validateToken(authHeader, (SecurityUser) userDetails)) {
+//                        return;
+////                        throw new TokenInvalidException("用户凭据无效");
+//                    }
+//                    if (jwtTokenUtil.isTokenExpired(authHeader)) {
+//                        return;
+////                        throw new TokenExpiredException("用户凭据已过期");
+//                    }
+
+                    if (jwtTokenUtil.validateToken(authHeader, (SecurityUser) userDetails)&&!jwtTokenUtil.isTokenExpired(authHeader)){
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+
+                }
+            }
 
         }
         chain.doFilter(request, response);

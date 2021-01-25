@@ -1,6 +1,7 @@
 package com.blog.api.model;
 
 
+import com.blog.api.common.anotation.Field;
 import com.blog.api.enums.PublishState;
 import com.blog.api.model.base.BaseModel;
 import lombok.Data;
@@ -31,6 +32,7 @@ public class Role extends BaseModel {
     /*
     角色名
     * */
+    @Field(description = "角色",unique = true,query = true,queryOp = Field.Operator.like)
     private String roleName;
 
     /*备注*/

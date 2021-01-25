@@ -43,7 +43,6 @@ public class SysUserService extends BaseService<SysUser, Integer> {
     private UserDetailsService userDetailsService;
 
 
-
     @Autowired
     public SysUserService(SysUserRepository dal) {//这里必须要使用构造注入。
         super.dal = dal;
@@ -65,7 +64,7 @@ public class SysUserService extends BaseService<SysUser, Integer> {
 //                SecurityContextHolder.getContext().setAuthentication(authentication);
 //           var context= SecurityContextHolder.getContext();
             // Reload password post-security so we can generate token
-            final UserDetails userDetails =(UserDetails) authentication.getPrincipal();
+            final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             final TokenDto tokenDto = jwtTokenUtil.accessToken((SecurityUser) userDetails);
             return tokenDto;
         } catch (Exception ex) {
@@ -80,56 +79,6 @@ public class SysUserService extends BaseService<SysUser, Integer> {
     }
 
 
-    /**
-     * 重写添加校验方法
-     *
-     * @param entity
-     * @return
-     */
-    @Override
-    public void beforeAdd(SysUser entity) {
-        var findUser = this.dal.getUser(entity.getAccount());
-        if (findUser != null) throw new BizException(String.format("用户[%s]已经存在!", entity.getAccount())
-        );
-    }
-
-    /**
-     * 重写修改校验方法
-     *
-     * @param entity
-     * @return
-     */
-    @Override
-    public void beforeEdit(SysUser entity) {
-
-        Specification<SysUser> specification = (Specification<SysUser>) (root, criteriaQuery, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
-
-            predicates.add(cb.notEqual(root.get("id"), entity.getId()));
-            predicates.add(cb.equal(root.get("account"), entity.getAccount()));
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
-        };
-        var findUser = this.dal.findAll(specification);
-        if (findUser != null&&!findUser.isEmpty())
-            throw new BizException(String.format("用户[%s]已经存在!", entity.getAccount())
-        );
-    }
-
-    @Override
-    public Page<SysUser> getPageList(SysUser params, Pageable pageable) {
-        Specification<SysUser> specification = (Specification<SysUser>) (root, criteriaQuery, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
-
-            if (!StrUtil.isBlank(params.getAccount()))
-                predicates.add(cb.like(root.get("account"), "%" + params.getAccount() + "%"));
-
-            if (!StrUtil.isBlank(params.getNickName()))
-                predicates.add(cb.like(root.get("nickName"), "%" + params.getNickName() + "%"));
-
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
-        };
-        return super.pageList(specification, pageable);
-    }
 
 
 }

@@ -28,47 +28,8 @@ public class RoleService extends BaseService<Role, Integer> {
         this.dal = dal;
 
     }
-    @Override
-    public void beforeAdd(Role entity) {
 
-        Specification<Role> specification = (Specification<Role>) (root, criteriaQuery, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
 
-            predicates.add(cb.equal(root.get("roleName"), entity.getRoleName()));
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
-        };
-        var findRole = this.dal.findAll(specification);
-        if (findRole != null&&!findRole.isEmpty())
-            throw new BizException(String.format("角色[%s]已经存在!", entity.getRoleName())
-            );
-    }
 
-    @Override
-    public void beforeEdit(Role entity) {
 
-        Specification<Role> specification = (Specification<Role>) (root, criteriaQuery, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
-
-            predicates.add(cb.notEqual(root.get("id"), entity.getId()));
-            predicates.add(cb.equal(root.get("roleName"), entity.getRoleName()));
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
-        };
-        var findRole = this.dal.findAll(specification);
-        if (findRole != null&&!findRole.isEmpty())
-            throw new BizException(String.format("角色[%s]已经存在!", entity.getRoleName())
-            );
-    }
-
-    @Override
-    public Page<Role> getPageList(Role params, Pageable pageable) {
-        Specification<Role> specification = (Specification<Role>) (root, criteriaQuery, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
-
-            if (!StrUtil.isBlank(params.getRoleName()))
-                predicates.add(cb.like(root.get("roleName"), "%"+params.getRoleName()+"%"));
-
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
-        };
-        return super.pageList(specification,pageable);
-    }
 }
