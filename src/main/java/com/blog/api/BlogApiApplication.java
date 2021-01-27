@@ -11,14 +11,19 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
+import java.util.Map;
+
+
 @SpringBootApplication()
 @ComponentScan("com.blog.api")
 @EntityScan("com.blog.api")
 @EnableJpaRepositories("com.blog.api")
 public class BlogApiApplication {
 
+
     public static void main(String[] args) {
         SpringApplication.run(BlogApiApplication.class, args);
+
     }
 
 }
