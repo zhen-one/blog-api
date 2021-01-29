@@ -13,7 +13,7 @@ public class CustomAuthority  implements GrantedAuthority {
 
     @Override
     public String getAuthority() {
-        return this.permission.getPermissionName();
+        return this.permission.getName();
     }
 
     public CustomAuthority(Permission permission){

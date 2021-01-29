@@ -1,15 +1,17 @@
 package com.blog.api.dto;
 
 import com.blog.api.model.Api;
+import lombok.Data;
 
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import java.util.List;
 
-public class PermissionDto extends  BaseDto{
-
+@Data
+public class PermissionDto extends TreeNode {
 
     //权限名
-    private String permissionName;
+    private String name;
 
     //前端路由
     private String path;
@@ -20,17 +22,31 @@ public class PermissionDto extends  BaseDto{
     //图标
     private String icon;
 
-    //是否隐藏
-    private boolean isHidden;
+    //权限类型 1导航 2菜单 3按钮
+    private int type;
 
-    //是否按钮
-    private boolean isButton;
-
+    /**
+     * 按钮无权限状态 1隐藏 2禁用 当type=3时生效
+     */
+    private int denyStatus;
     //排序
-    private int sort;
+    private int sorting;
 
-    //上级ID
-    private int parentId;
 
+
+    private boolean isOutlink;
+
+
+    /**
+     * 描述
+     */
+    private String description;
+
+
+    private int apiId;
     private ApiDto api;
+//    //上级ID
+//    private int parentId;
+//
+////    private List<PermissionDto> children;
 }

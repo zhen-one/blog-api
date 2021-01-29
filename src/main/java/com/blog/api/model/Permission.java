@@ -1,5 +1,6 @@
 package com.blog.api.model;
 
+import com.blog.api.common.anotation.Field;
 import com.blog.api.model.base.BaseModel;
 import lombok.Data;
 import lombok.Getter;
@@ -22,8 +23,9 @@ import javax.persistence.Table;
 public class Permission extends BaseModel {
 
 
+    @Field(description = "权限名称",unique = true,query = true,queryOp = Field.Operator.like)
     //权限名
-    private String permissionName;
+    private String name;
 
     //前端路由
     private String path;
@@ -34,25 +36,44 @@ public class Permission extends BaseModel {
     //图标
     private String icon;
 
-    //是否隐藏
-    private boolean isHidden;
+    //权限类型 1导航 2菜单 3按钮
+    private int type;
 
-    //是否按钮
-    private boolean isButton;
-
+    /**
+     * 按钮无权限状态 1隐藏 2禁用 当type=3时生效
+     */
+    private int denyStatus;
     //排序
-    private int sort;
+    private int sorting;
 
     //上级ID
     private int parentId;
 
+    private int isOutlink;
+
+    /**
+     * 描述
+     */
+    private String description;
+
 
     @OneToOne
-    @JoinColumn(name="api_id",referencedColumnName="id")
+    @JoinColumn(name = "api_id", referencedColumnName = "id")
     private Api api;
 
 
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 
+    /**
+     * 重写hashcode方法，返回的hashCode一样才再去比较每个属性的值
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
 
 }

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.catalina.LifecycleState;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -20,6 +22,8 @@ import java.util.Set;
 @Getter
 @Table
 @Entity
+@DynamicUpdate
+@DynamicInsert
 public class SysUser extends BaseModel {
 
 

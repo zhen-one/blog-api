@@ -11,14 +11,12 @@ import com.blog.api.service.ApiService;
 import com.blog.api.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 @io.swagger.annotations.Api(value = "接口管理")
 @RestController
@@ -34,4 +32,12 @@ public class ApiController extends BaseController<ApiDto, Api>{
         super.baseService=service;
     }
 
+
+
+
+    @Override
+    @RequestMapping(value = "/getAll",method = RequestMethod.GET)
+    public ResponseResult<List<ApiDto>> getAll() {
+        return super.getAll();
+    }
 }

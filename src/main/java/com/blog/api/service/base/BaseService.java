@@ -190,6 +190,12 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
      * @return
      */
     public List<T> getEnabledList() {
+
+        return getEnabledList(null);
+    }
+
+    public List<T> getEnabledList(Specification<T> spec) {
+
         Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) -> {
             List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
 
@@ -197,6 +203,10 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
             predicates.add(cb.equal(root.get("isEnable"), true));
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
         };
+
+        if (spec != null) {
+            specification = specification.and(spec);
+        }
         return dal.findAll(specification);
 
     }
@@ -213,13 +223,13 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
         List<Specification<T>> specifications = new ArrayList<>();
 
-        Specification<T> specificationTotal=new Specification<T>() {
+        Specification<T> specificationTotal = new Specification<T>() {
             @Override
             public Predicate toPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 return null;
             }
         };
-        List<Field> aa=new ArrayList<>();
+        List<Field> aa = new ArrayList<>();
 
         for (Field field : fields) {
             if (field.isAnnotationPresent(com.blog.api.common.anotation.Field.class)) {
@@ -230,7 +240,7 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
                         field.setAccessible(true);
                         Object val = field.get(params);
 
-                        if(val==null)continue;
+                        if (val == null) continue;
 
                         Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) -> {
 
@@ -252,7 +262,7 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
                             return predict;
                         };
-                        specificationTotal= specificationTotal.and(specification);
+                        specificationTotal = specificationTotal.and(specification);
                         specifications.add(specification);
 
                     } catch (IllegalAccessException e) {

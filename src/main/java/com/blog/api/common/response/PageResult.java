@@ -11,16 +11,16 @@ import java.util.List;
 @Data
 public class PageResult<T> {
 
-    private Collection<T> list;
+    private List<T> list;
 
     private Pagination pagination;
 
-    public PageResult(int pageIndex, int pageSize, int totalCount, int pageCount, Collection<T> list) {
+    public PageResult(int pageIndex, int pageSize, int totalCount, int pageCount, List<T> list) {
 
         if (pageIndex <= 0) pageIndex = 1;
         if (totalCount < 0) totalCount = 0;
         if (pageCount < 0) pageCount = 0;
-        if (list == null) list = new ArrayDeque<>();
+        if (list == null) list = new ArrayList<>();
         this.pagination = new Pagination();
         this.pagination.totalCount = totalCount;
         this.pagination.pageCount = pageCount;
@@ -29,7 +29,7 @@ public class PageResult<T> {
         this.list = list;
     }
 
-    public PageResult(Collection<T> list, Pagination pagination) {
+    public PageResult(List<T> list, Pagination pagination) {
         this.pagination = pagination;
         this.list = list;
     }

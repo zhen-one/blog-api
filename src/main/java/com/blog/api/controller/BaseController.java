@@ -80,9 +80,9 @@ public abstract class BaseController<Dto extends BaseDto, Entity extends BaseMod
         return ResponseUtil.success(dtoRes);
     }
 
-    @RequestMapping(value = "/getAll",method = RequestMethod.GET)
+
     public ResponseResult<List<Dto>>  getAll() {
-        return ResponseUtil.success(baseService.findAll()
+        return ResponseUtil.success(baseService.getEnabledList()
                 .stream()
                 .map(n -> (Dto) (dozerMapper.map(n, dtoClass)))
                 .collect(Collectors.toList()));
@@ -136,8 +136,8 @@ public abstract class BaseController<Dto extends BaseDto, Entity extends BaseMod
      * @return
      * @throws NotFoundException
      */
-    @GetMapping("/get")
-    public ResponseResult<Dto> edit(int id) throws NotFoundException {
+    @GetMapping("/get/{id}")
+    public ResponseResult<Dto> get(@PathVariable("id") int id) throws NotFoundException {
         return ResponseUtil.success((Dto) dozerMapper.map(baseService.getById(id), dtoClass));
     }
 

@@ -3,6 +3,8 @@ package com.blog.api.model;
 
 import com.blog.api.enums.PublishState;
 import com.blog.api.model.base.BaseModel;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +15,8 @@ import java.util.Date;
 
 @Table
 @Entity
+@DynamicUpdate
+@DynamicInsert
 public class Post extends BaseModel {
 
     public PublishState getPublishState() {

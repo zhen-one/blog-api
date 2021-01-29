@@ -1,4 +1,5 @@
 package com.blog.api.controller;
+
 import com.blog.api.common.response.ResponseResult;
 import com.blog.api.common.response.ResponseUtil;
 import com.blog.api.dto.TokenDto;
@@ -27,7 +28,7 @@ public class AuthController {
     @PermitAll()
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseResult<TokenDto> createToken(
-            @Validated  @RequestBody LoginDto loginDto
+            @Validated @RequestBody LoginDto loginDto
     ) throws AuthenticationException {
 
 
@@ -51,6 +52,8 @@ public class AuthController {
 
         // Return the token
         return ResponseUtil.success(tokenDto);
+
+
     }
 
 

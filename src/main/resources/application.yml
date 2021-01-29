@@ -14,8 +14,9 @@ security:
       - /swagger-ui.html
       - swagger-resources/**
       - /api/auth/login
-      - /api/auth/refreshToken
-      - /api/role/getAll
+      - /api/auth/refresh
+      - /webjars/**
+#      - /api/role/getAll
 #mybatis配置
 
 pagehelper:

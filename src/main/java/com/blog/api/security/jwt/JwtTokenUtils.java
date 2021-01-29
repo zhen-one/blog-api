@@ -45,7 +45,7 @@ public class JwtTokenUtils {
         String token = Jwts.builder()
                 .addClaims(claims)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtSecurityProperties.getExpiration() * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + expire))
                 .signWith(SignatureAlgorithm.HS512, jwtSecurityProperties.getSecret())
                 .compact();
 
@@ -171,21 +171,18 @@ public class JwtTokenUtils {
      */
     public TokenDto refreshToken(String token) {
         long expire = jwtSecurityProperties.getExpiration() * 1000;
-        try {
 
-            if (!validateToken(token) || this.isTokenExpired(token)) return null;
 
-            Claims claims = getClaimsFromToken(token);
-            claims.put("created", new Date());
-            var accessToken = createToken(claims, expire);
-            var refreshToken = createToken(claims, expire * 10);
-            var tokenDto = new TokenDto();
-            tokenDto.setAccess_token(accessToken);
-            tokenDto.setRefresh_token(refreshToken);
-            return tokenDto;
-        } catch (Exception e) {
-            return null;
-        }
+        if (!validateToken(token) || this.isTokenExpired(token)) return null;
+
+        Claims claims = getClaimsFromToken(token);
+        claims.put("created", new Date());
+        var accessToken = createToken(claims, expire);
+        var refreshToken = createToken(claims, expire * 10);
+        var tokenDto = new TokenDto();
+        tokenDto.setAccess_token(accessToken);
+        tokenDto.setRefresh_token(refreshToken);
+        return tokenDto;
 
     }
 

@@ -83,17 +83,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 accessDeniedHandler(jwtAccessDeniedHandler).and()
                 .cors()
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().authorizeRequests().withObjectPostProcessor(
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeRequests()
+                .anyRequest()
+                .authenticated()
+                .withObjectPostProcessor(
                         new ObjectPostProcessor<FilterSecurityInterceptor>() {
                             @Override
                             public <O extends FilterSecurityInterceptor> O postProcess(O o) {
-                               o.setAccessDecisionManager(dynamicAccessDecisionManager);
-                               return o;
+                                o.setAccessDecisionManager(dynamicAccessDecisionManager);
+                                return o;
                             }
                         })
-                .anyRequest()
-                .authenticated()
                 .and().headers().cacheControl();
 
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);

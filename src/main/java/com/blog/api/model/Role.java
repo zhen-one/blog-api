@@ -5,6 +5,8 @@ import com.blog.api.common.anotation.Field;
 import com.blog.api.enums.PublishState;
 import com.blog.api.model.base.BaseModel;
 import lombok.Data;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -26,6 +28,8 @@ import java.util.Set;
         }
 )
 @Entity
+@DynamicUpdate
+@DynamicInsert
 public class Role extends BaseModel {
 
 
@@ -45,6 +49,20 @@ public class Role extends BaseModel {
     @JoinTable(name="role_permission_rel",joinColumns = @JoinColumn(name ="role_id"),
             inverseJoinColumns = @JoinColumn(name="permission_id"))
     private Set<Permission> permissions=new HashSet<>();
+
+
+    @Override
+    public boolean equals(Object obj) {
+       return super.equals(obj);
+    }
+
+    /**
+     * 重写hashcode方法，返回的hashCode一样才再去比较每个属性的值
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
 
 }

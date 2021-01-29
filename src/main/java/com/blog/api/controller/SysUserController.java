@@ -48,6 +48,9 @@ public class SysUserController extends BaseController<UserDto, SysUser> {
     private SysUserService userService;
 
     @Autowired
+    private RoleService roleService;
+
+    @Autowired
     private UserRoleService userRoleService;
 
 
@@ -65,16 +68,15 @@ public class SysUserController extends BaseController<UserDto, SysUser> {
         //先创建用户
 //        var newUser = userService.add((SysUser) super.dozerMapper.map(userDto, SysUser.class));
 
-        var newUser=(SysUser) super.dozerMapper.map(userDto, SysUser.class);
+        var newUser = (SysUser) super.dozerMapper.map(userDto, SysUser.class);
         newUser.setRoles(new HashSet<>());
 
-        Arrays.stream(userDto.getRoleIds()).forEach(n -> {
-            var role=new Role();
-            role.setId(n);
+        for (int n : userDto.getRoleIds()) {
+            var role = roleService.getById(n);
             newUser.getRoles().add(role);
 //            userRoleService.add(new UserRole(newUser.getId(), n));
 
-        });
+        }
         return ResponseUtil.success(super.dozerMapper.map(userService.add(newUser), UserDto.class));
 //        return ResponseUtil.success(super.dozerMapper.map(newUser, UserDto.class));
     }
@@ -95,16 +97,15 @@ public class SysUserController extends BaseController<UserDto, SysUser> {
 //        var editUser = userService.edit((SysUser) super.dozerMapper.map(userDto, SysUser.class));
 //        return ResponseUtil.success(super.dozerMapper.map(editUser, UserDto.class));
 
-        var newUser=(SysUser) super.dozerMapper.map(userDto, SysUser.class);
+        var newUser = (SysUser) super.dozerMapper.map(userDto, SysUser.class);
         newUser.setRoles(new HashSet<>());
-
-        Arrays.stream(userDto.getRoleIds()).forEach(n -> {
-            var role=new Role();
-            role.setId(n);
+        newUser = userService.edit(newUser);
+        for (int n : userDto.getRoleIds()) {
+            var role = roleService.getById(n);
             newUser.getRoles().add(role);
 //            userRoleService.add(new UserRole(newUser.getId(), n));
 
-        });
+        }
         return ResponseUtil.success(super.dozerMapper.map(userService.edit(newUser), UserDto.class));
     }
 

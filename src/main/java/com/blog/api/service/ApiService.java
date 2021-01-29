@@ -40,7 +40,7 @@ public class ApiService extends BaseService<Api, Integer> {
             List<Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
 
             if (!StrUtil.isBlank(url))
-                predicates.add(cb.like(root.get("name"), "%" + url + "%"));
+                predicates.add(cb.like(root.get("url"), "%" + url + "%"));
 
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
         };
@@ -48,18 +48,6 @@ public class ApiService extends BaseService<Api, Integer> {
     }
 
 
-    @Override
-    public Page<Api> getPageList(Api params, Pageable pageable) {
-        Specification<Api> specification = (Specification<Api>) (root, criteriaQuery, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();//使用集合可以应对多字段查询的情况
-
-            if (!StrUtil.isBlank(params.getName()))
-                predicates.add(cb.like(root.get("apiName"), "%" + params.getName() + "%"));
-
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
-        };
-        return super.pageList(specification, pageable);
-    }
 
 
 }

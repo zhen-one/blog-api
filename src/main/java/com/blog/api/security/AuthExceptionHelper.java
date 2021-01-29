@@ -1,9 +1,6 @@
 package com.blog.api.security;
 
-import org.springframework.security.authentication.AccountExpiredException;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -23,6 +20,9 @@ public class AuthExceptionHelper {
         }
         else if(ex instanceof AccountExpiredException){
             return "账户已经过期";
+        }
+        else if(ex instanceof AuthenticationCredentialsNotFoundException){
+            return "未登陆";
         }
         else{
             return  ex.getMessage();
