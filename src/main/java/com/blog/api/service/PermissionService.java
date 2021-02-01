@@ -1,7 +1,9 @@
 package com.blog.api.service;
 
+import com.blog.api.dto.PermissionDto;
 import com.blog.api.model.Api;
 import com.blog.api.model.Permission;
+import com.blog.api.model.Role;
 import com.blog.api.model.base.BaseModel;
 import com.blog.api.repo.PermissionRepository;
 import com.blog.api.repo.RoleRepository;
@@ -12,10 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +53,7 @@ public class PermissionService extends BaseService<Permission, Integer> {
         Specification<Permission> specification = (Specification<Permission>) (root, criteriaQuery, cb) -> {
 
             List<Predicate> predicts = new ArrayList<>();
-            if(permission_id>0){
+            if (permission_id > 0) {
                 predicts.add(cb.notEqual(root.get("id"), permission_id));
                 predicts.add(cb.notEqual(root.get("parentId"), permission_id));
             }
@@ -66,5 +65,8 @@ public class PermissionService extends BaseService<Permission, Integer> {
         return super.getEnabledList(specification);
 
     }
+
+
+
 
 }

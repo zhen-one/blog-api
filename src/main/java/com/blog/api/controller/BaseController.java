@@ -9,8 +9,9 @@ import com.blog.api.model.SysUser;
 import com.blog.api.model.base.BaseModel;
 import com.blog.api.service.SysUserService;
 import com.blog.api.service.base.BaseService;
+import com.github.dozermapper.core.DozerBeanMapper;
+import com.github.dozermapper.core.Mapper;
 import javassist.NotFoundException;
-import org.dozer.DozerBeanMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +36,7 @@ public abstract class BaseController<Dto extends BaseDto, Entity extends BaseMod
 
 
     @Autowired
-    protected DozerBeanMapper dozerMapper;
+    protected Mapper dozerMapper;
 
     private Class<?> dtoClass;
 

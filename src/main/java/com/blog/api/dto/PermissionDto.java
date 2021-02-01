@@ -44,7 +44,10 @@ public class PermissionDto extends TreeNode {
 
 
     private int apiId;
-    private ApiDto api;
+    private Api api;
+
+
+    private boolean checked;
 //    //上级ID
 //    private int parentId;
 //

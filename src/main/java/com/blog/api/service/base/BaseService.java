@@ -52,6 +52,8 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 //    protected  abstract T beforeSaveNew(T entity);
     private void uniqueCheck(T entity, boolean isEdit) {
 
+
+
         Field[] fields = entityClass.getDeclaredFields();
 
         Arrays.stream(fields).forEach(
@@ -71,6 +73,7 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
                                     var predict = cb.equal(root.get(field.getName()), val);
                                     predicates.add(predict);
                                     if (isEdit) {
+                                        if (entity.getId() <= 0) throw new BizException("id为空");
                                         predicates.add(cb.notEqual(root.get("id"), entity.getId()));
                                     }
                                     return cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
@@ -101,6 +104,11 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
     public void beforeEdit(T entity) {
         uniqueCheck(entity, true);
+        var oldOne = this.dal.getOne(entity.getId());
+        entity.setCreator(oldOne.getCreator());
+        entity.setCreatedAt(oldOne.getCreatedAt());
+        entity.setCreatorId(oldOne.getCreatorId());
+
     }
 
     public final T add(T entity) {
