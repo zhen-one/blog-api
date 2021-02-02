@@ -1,5 +1,6 @@
 package com.blog.api.service;
 
+import com.blog.api.common.exception.BizException;
 import com.blog.api.model.Api;
 import com.blog.api.model.Permission;
 import com.blog.api.model.base.BaseModel;
@@ -54,7 +55,7 @@ public class PermissionService extends BaseService<Permission, Integer> {
         Specification<Permission> specification = (Specification<Permission>) (root, criteriaQuery, cb) -> {
 
             List<Predicate> predicts = new ArrayList<>();
-            if(permission_id>0){
+            if (permission_id > 0) {
                 predicts.add(cb.notEqual(root.get("id"), permission_id));
                 predicts.add(cb.notEqual(root.get("parentId"), permission_id));
             }
@@ -67,4 +68,28 @@ public class PermissionService extends BaseService<Permission, Integer> {
 
     }
 
+
+    @Override
+    protected void validated(Permission entity) {
+
+        int parentType = 1;//导航
+        Permission parentPermission = null;
+        if (entity.getParentId() > 0) {
+            parentPermission = super.getById(entity.getParentId());
+            parentType = parentPermission.getType();
+        }
+        //权限类型---导航|菜单
+        if (entity.getType() == 1 || entity.getType() == 2) {
+            if (parentType != 1) {
+                throw new BizException("导航|菜单的父级权限只能为导航类型");
+            }
+        }
+
+        //权限类型---按钮
+        if (entity.getType() == 3) {
+            if (parentType != 2) {
+                throw new BizException("按钮的父级权限只能为菜单类型");
+            }
+        }
+    }
 }

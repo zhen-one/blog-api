@@ -20,10 +20,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -41,6 +38,11 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
     public BaseService() {
         this.entityClass = GenericUtil.getActualTypeArgument(this, 0);
+    }
+
+
+    protected void validated(T entity) {
+
     }
 
     /**
@@ -95,11 +97,13 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
     public void beforeAdd(T entity) {
 
+        validated(entity);
         uniqueCheck(entity, false);
 
     }
 
     public void beforeEdit(T entity) {
+        validated(entity);
         uniqueCheck(entity, true);
     }
 
@@ -280,6 +284,76 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
     }
 
+
+    /**
+     * 分页列表 带查询参数
+     *
+     * @param params
+     * @param pageable
+     * @return
+     */
+    public Page<T> getPageList(Map<String, Object> params, Pageable pageable) {
+        Field[] fields = entityClass.getDeclaredFields();
+
+        List<Specification<T>> specifications = new ArrayList<>();
+
+        Specification<T> specificationTotal = new Specification<T>() {
+            @Override
+            public Predicate toPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                return null;
+            }
+        };
+        List<Field> aa = new ArrayList<>();
+
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(com.blog.api.common.anotation.Field.class)) {
+                com.blog.api.common.anotation.Field fieldAnnonation =
+                        field.getAnnotation(com.blog.api.common.anotation.Field.class);
+                if (fieldAnnonation.query()) {
+
+
+                    if (!params.containsKey(field.getName())) {
+                        continue;
+                    }
+//                        field.setAccessible(true);
+//                        Object val = field.get(params);
+
+                    Object val = params.get(field.getName());
+                    if (val == null) continue;
+
+                    Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) -> {
+
+                        Predicate predict = null;
+
+                        switch (fieldAnnonation.queryOp()) {
+                            case equal: {
+                                predict = cb.equal(root.get(field.getName()), val);
+                                break;
+                            }
+                            case like: {
+                                predict = cb.like(root.get(field.getName()), "%" + val + "%");
+                                break;
+                            }
+                            case greaterThan: {
+                                break;
+                            }
+                        }
+
+                        return predict;
+                    };
+                    specificationTotal = specificationTotal.and(specification);
+                    specifications.add(specification);
+
+                }
+            }
+        }
+
+
+//        Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) ->
+//                cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
+        return this.pageList(specificationTotal, pageable);
+
+    }
 
     public List<T> getlistByWhere(Specification<T> specification) {
         return dal.findAll(specification);

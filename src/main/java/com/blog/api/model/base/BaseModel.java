@@ -1,5 +1,6 @@
 package com.blog.api.model.base;
 
+import com.blog.api.common.anotation.Field;
 import com.blog.api.model.Role;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
@@ -43,6 +44,7 @@ public class BaseModel {
     @Column
     private boolean isDeleted;
 
+    @Field(description = "启用状态",query = true,queryOp = Field.Operator.equal)
     @Column
     private boolean isEnable;
 
