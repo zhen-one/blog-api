@@ -20,6 +20,8 @@ import javax.persistence.Table;
 @Getter
 @Table
 @Entity
+@DynamicUpdate
+@DynamicInsert
 public class Permission extends BaseModel {
 
 

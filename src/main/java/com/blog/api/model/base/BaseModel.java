@@ -29,7 +29,6 @@ public class BaseModel {
     @Column
     private Date createdAt;
 
-    @Column
     private String creator;
 
     @Column

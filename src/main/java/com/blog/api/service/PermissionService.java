@@ -1,8 +1,10 @@
 package com.blog.api.service;
 
 import com.blog.api.common.exception.BizException;
+import com.blog.api.dto.PermissionDto;
 import com.blog.api.model.Api;
 import com.blog.api.model.Permission;
+import com.blog.api.model.Role;
 import com.blog.api.model.base.BaseModel;
 import com.blog.api.repo.PermissionRepository;
 import com.blog.api.repo.RoleRepository;
@@ -13,10 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,4 +91,7 @@ public class PermissionService extends BaseService<Permission, Integer> {
             }
         }
     }
+
+
+
 }
