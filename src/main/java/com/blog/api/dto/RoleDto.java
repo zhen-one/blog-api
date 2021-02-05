@@ -28,7 +28,7 @@ public class RoleDto extends BaseDto {
     /**
      * 排序
      */
-    private int sorting;
+    private int sortOrder;
 
     private int[] permissionIds;
 

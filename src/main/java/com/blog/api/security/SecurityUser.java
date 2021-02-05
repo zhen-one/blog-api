@@ -1,5 +1,6 @@
 package com.blog.api.security;
 
+import com.blog.api.model.Role;
 import com.blog.api.model.SysUser;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,13 +14,13 @@ import java.util.function.Predicate;
 public class SecurityUser implements UserDetails {
 
 
+    private boolean isAdmin;
 
     private int userid;
 
     public int getUserid() {
         return userid;
     }
-
 
 
     private String userName;
@@ -35,9 +36,16 @@ public class SecurityUser implements UserDetails {
             this.setUserName(user.getAccount());
             this.setPassword(user.getPassword());
             this.setAuthorities(authorities);
+            if (user.getRoles() != null) {
+                for (Role role : user.getRoles()) {
+                    if (role.getRoleName().equals("超级管理员")) {
+                        this.isAdmin = true;
+                        continue;
+                    }
+                }
+            }
         }
     }
-
 
 
     @Override

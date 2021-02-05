@@ -16,6 +16,8 @@ public class PermissionDto extends TreeNode {
     //前端路由
     private String path;
 
+    private String code;
+
     //路由对应组件
     private String component;
 
@@ -30,7 +32,7 @@ public class PermissionDto extends TreeNode {
      */
     private int denyStatus;
     //排序
-    private int sorting;
+    private int sortOrder;
 
 
 

@@ -46,7 +46,7 @@ public class SysUser extends BaseModel {
     private int gender;
 
 
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany(cascade = CascadeType.MERGE,fetch=FetchType.EAGER)
     @JoinTable(name="user_role_relation",joinColumns = @JoinColumn(name ="user_id"),
             inverseJoinColumns = @JoinColumn(name="role_id"))
     private Set<Role> roles=new HashSet<>();

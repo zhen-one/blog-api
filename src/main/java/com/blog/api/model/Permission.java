@@ -29,6 +29,10 @@ public class Permission extends BaseModel {
     //权限名
     private String name;
 
+    //英文名
+    private String code;
+
+
     //前端路由
     private String path;
 
@@ -46,7 +50,7 @@ public class Permission extends BaseModel {
      */
     private int denyStatus;
     //排序
-    private int sorting;
+    private int sortOrder;
 
     //上级ID
     private int parentId;

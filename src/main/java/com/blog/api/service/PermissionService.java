@@ -32,14 +32,14 @@ public class PermissionService extends BaseService<Permission, Integer> {
 
     }
 
-    public List<Permission> getPermissionByUserid(int id) {
-        var a = new ArrayList<Permission>();
-        var p = new Permission();
-        p.setApi(new Api("/api/user/getAll"));
-        a.add(p);
-        return a;
-
-    }
+//    public List<Permission> getPermissionByUserid(int id) {
+//        var a = new ArrayList<Permission>();
+//        var p = new Permission();
+//        p.setApi(new Api("/api/user/getAll"));
+//        a.add(p);
+//        return a;
+//
+//    }
 
     public Permission getPermissionByurl(String url) {
 //        var p=new Permission();
@@ -54,11 +54,11 @@ public class PermissionService extends BaseService<Permission, Integer> {
         Specification<Permission> specification = (Specification<Permission>) (root, criteriaQuery, cb) -> {
 
             List<Predicate> predicts = new ArrayList<>();
-            if (permission_id > 0) {
-                predicts.add(cb.notEqual(root.get("id"), permission_id));
-                predicts.add(cb.notEqual(root.get("parentId"), permission_id));
-            }
-            predicts.add(cb.notEqual(root.get("type"), 3));
+//            if (permission_id > 0) {
+//                predicts.add(cb.notEqual(root.get("id"), permission_id));
+//                predicts.add(cb.notEqual(root.get("parentId"), permission_id));
+//            }
+//            predicts.add(cb.notEqual(root.get("type"), 3));
             return cb.and(predicts.toArray(new Predicate[predicts.size()]));
 
         };

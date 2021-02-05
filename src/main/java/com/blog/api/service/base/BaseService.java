@@ -55,7 +55,6 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
     private void uniqueCheck(T entity, boolean isEdit) {
 
 
-
         Field[] fields = entityClass.getDeclaredFields();
 
         Arrays.stream(fields).forEach(
@@ -302,6 +301,12 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
      */
     public Page<T> getPageList(Map<String, Object> params, Pageable pageable) {
         Field[] fields = entityClass.getDeclaredFields();
+        var superClass=entityClass.getSuperclass();
+        var superFields= superClass.getDeclaredFields();
+
+        List<Field> fieldList=new ArrayList<>();
+        fieldList.addAll(Arrays.asList(fields));
+        fieldList.addAll(Arrays.asList(superFields));
 
         List<Specification<T>> specifications = new ArrayList<>();
 
@@ -313,33 +318,46 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
         };
         List<Field> aa = new ArrayList<>();
 
-        for (Field field : fields) {
+        for (Field field : fieldList) {
             if (field.isAnnotationPresent(com.blog.api.common.anotation.Field.class)) {
                 com.blog.api.common.anotation.Field fieldAnnonation =
                         field.getAnnotation(com.blog.api.common.anotation.Field.class);
                 if (fieldAnnonation.query()) {
 
+                    String fieldName = "";
+                    if (!fieldAnnonation.queryName().isBlank()) fieldName = fieldAnnonation.queryName();
+                    else fieldName = field.getName();
 
-                    if (!params.containsKey(field.getName())) {
+                    if (!params.containsKey(fieldName)) {
                         continue;
                     }
 //                        field.setAccessible(true);
 //                        Object val = field.get(params);
 
-                    Object val = params.get(field.getName());
+                    Object val = params.get(fieldName);
+
+                    var fieldType=field.getType();
+                    var b=boolean.class;
+
+                    System.out.println(fieldType.getName());
+
+                    if(fieldType.getName()==boolean.class.getName()){
+                        val= Boolean.parseBoolean(val.toString());
+                    }
                     if (val == null) continue;
 
+                    Object finalVal = val;
                     Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) -> {
 
                         Predicate predict = null;
 
                         switch (fieldAnnonation.queryOp()) {
                             case equal: {
-                                predict = cb.equal(root.get(field.getName()), val);
+                                predict = cb.equal(root.get(field.getName()), finalVal);
                                 break;
                             }
                             case like: {
-                                predict = cb.like(root.get(field.getName()), "%" + val + "%");
+                                predict = cb.like(root.get(field.getName()), "%" + finalVal + "%");
                                 break;
                             }
                             case greaterThan: {

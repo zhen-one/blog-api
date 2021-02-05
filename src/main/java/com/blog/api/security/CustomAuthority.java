@@ -7,19 +7,21 @@ import org.springframework.stereotype.Component;
 
 
 @Data
-public class CustomAuthority  implements GrantedAuthority {
+public class CustomAuthority implements GrantedAuthority {
 
     private Permission permission;
+
+
+
 
     @Override
     public String getAuthority() {
         return this.permission.getName();
     }
 
-    public CustomAuthority(Permission permission){
-        this.permission=permission;
+    public CustomAuthority(Permission permission) {
+        this.permission = permission;
     }
-
 
 
 }

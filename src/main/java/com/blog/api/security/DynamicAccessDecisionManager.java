@@ -70,29 +70,32 @@ public class DynamicAccessDecisionManager implements AccessDecisionManager {
         //需要权限访问的接口列表
         var managedApis = apiService.getByUrl(pureUrl);
 
-        //請求的地址 在數據庫中不存在 跳過權限校驗
-        if (managedApis.size() == 0) {
-            if (authentication instanceof AnonymousAuthenticationToken) {
-                throw new AuthenticationCredentialsNotFoundException("");
-            } else {
+        if (authentication instanceof AnonymousAuthenticationToken) {
+            throw new AuthenticationCredentialsNotFoundException("");
+        } else {
+            //請求的地址 在數據庫中不存在 跳過權限校驗
+            if (managedApis.size() == 0){
                 return;
             }
-        }
 
+        }
 
 //        if(managedApis.stream().filter(n->n.getUrl()==url).count()==0)return;;
 
         //当前登录用户
         SecurityUser userDetails = (SecurityUser) authentication.getPrincipal();
 
+        //超级管理员忽略所有
+        if(userDetails.isAdmin())return;
+
         var authorities = userDetails.getAuthorities();
 
         List<Permission> permissions = authorities
                 .stream().map(authority -> ((CustomAuthority) authority).getPermission()).collect(Collectors.toList());
 
-        if (authorities == null && authorities.size() == 0) {
-            permissions = permissionService.getPermissionByUserid(userDetails.getUserid());
-        }
+//        if (authorities == null && authorities.size() == 0) {
+//            permissions = permissionService.getPermissionByUserid(userDetails.getUserid());
+//        }
 
         var matcher = new AntPathMatcher();
 

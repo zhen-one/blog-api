@@ -43,7 +43,7 @@ public class BaseModel {
     @Column
     private boolean isDeleted;
 
-    @Field(description = "启用状态",query = true,queryOp = Field.Operator.equal)
+    @Field(description = "启用状态",query = true,queryOp = Field.Operator.equal,queryName = "enable")
     @Column
     private boolean isEnable;
 

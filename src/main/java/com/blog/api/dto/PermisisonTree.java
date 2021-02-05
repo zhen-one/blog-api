@@ -6,16 +6,14 @@ import com.blog.api.model.Permission;
 import com.blog.api.model.Role;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.collections.CollectionUtils;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class MenuDto {
+public class PermisisonTree {
 
     private int value;
 
@@ -33,32 +31,32 @@ public class MenuDto {
 
     private boolean checkable;
 
-    private Collection<MenuDto> children;
+    private Collection<PermisisonTree> children;
 
 
-    public MenuDto() {
+    public PermisisonTree() {
 
     }
 
 
-    public static MenuDto buildRoot() {
-        var menu = new MenuDto();
+    public static PermisisonTree buildRoot() {
+        var menu = new PermisisonTree();
         menu.value = 0;
         menu.key = 0;
         menu.title = "根目录";
         return menu;
     }
 
-    public static List<MenuDto> toMenus(Collection<PermissionDto> permissions,boolean checkable) {
-        List<MenuDto> menuDtoList = new ArrayList<>();
+    public static List<PermisisonTree> toTrees(Collection<PermissionDto> permissions, boolean checkable, int permission_id) {
+        List<PermisisonTree> permisisonTreeList = new ArrayList<>();
         for (PermissionDto permissionDto : permissions) {
-            menuDtoList.add(toMenu(permissionDto,checkable));
+            permisisonTreeList.add(toTree(permissionDto,checkable,permission_id));
         }
-        return menuDtoList;
+        return permisisonTreeList;
     }
 
 
-    public static List<MenuDto> toMenus(Role role) {
+    public static List<PermisisonTree> toTrees(Role role) {
 
         Set<Permission> permissions = role.getPermissions();
 
@@ -66,23 +64,30 @@ public class MenuDto {
         for (Permission permission : permissions) {
             list.add(MapperUtil.map(permission, PermissionDto.class));
         }
-        return MenuDto.toMenus(list,true);
+        return PermisisonTree.toTrees(list,true,0);
 
     }
 
-    private static MenuDto toMenu(PermissionDto permissionDto,boolean checkable) {
-        var menu = new MenuDto();
+    private static PermisisonTree toTree(PermissionDto permissionDto, boolean checkable, int permission_id) {
+        var menu = new PermisisonTree();
         menu.value = permissionDto.getId();
         menu.key = permissionDto.getId();
         menu.title = permissionDto.getName();
+
+        if(permission_id>0){
+            boolean flag=permissionDto.getType()==3;
+            menu.disabled=permissionDto.getId()==permission_id
+                    ||permissionDto.getParentId()==permission_id
+                    ||permissionDto.getType()==3;
+        }
         menu.checkable=checkable;
         if (permissionDto.getChildren() != null) {
-            menu.children = toMenus(
+            menu.children = toTrees(
                     permissionDto
                             .getChildren()
                             .stream()
                             .map(n -> (PermissionDto) n)
-                            .collect(Collectors.toList()),checkable);
+                            .collect(Collectors.toList()),checkable,permission_id);
             if (menu.children != null && menu.children.size() > 0) {
                 menu.label = menu.title + "(" + Integer.toString(menu.children.size()) + ")";
             }

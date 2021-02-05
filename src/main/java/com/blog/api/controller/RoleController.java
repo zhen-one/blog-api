@@ -72,6 +72,22 @@ public class RoleController extends BaseController<RoleDto, Role> {
     }
 
 
+    @PostMapping("/edit")
+    @Override
+    public ResponseResult<RoleDto> edit(@RequestBody @NotNull RoleDto dto) {
+        var newRole = (Role) super.dozerMapper.map(dto, Role.class);
+        newRole.setPermissions(new HashSet<>());
+        Arrays.stream(dto.getPermissionIds()).forEach(n -> {
+
+            var permission = permissionService.getById(n);
+            newRole.getPermissions().add(permission);
+
+        });
+        return ResponseUtil.success(dozerMapper.map(roleService.edit(newRole),RoleDto.class)) ;
+
+    }
+
+
     @Override
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     public ResponseResult<List<RoleDto>> getAll() {

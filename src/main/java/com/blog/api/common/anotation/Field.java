@@ -13,6 +13,8 @@ import java.util.Map;
 public @interface Field {
 
 
+
+    public String queryName() default "";
     /**
      * 字段描述
      *

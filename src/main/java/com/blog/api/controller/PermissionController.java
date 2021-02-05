@@ -4,19 +4,15 @@ import com.blog.api.common.response.PageResult;
 import com.blog.api.common.response.ResponseResult;
 import com.blog.api.common.response.ResponseUtil;
 import com.blog.api.common.util.TreeUtil;
-import com.blog.api.dto.ApiDto;
-import com.blog.api.dto.MenuDto;
+import com.blog.api.dto.MenuTree;
+import com.blog.api.dto.PermisisonTree;
 import com.blog.api.dto.PermissionDto;
 import com.blog.api.model.Permission;
 import com.blog.api.model.Role;
+import com.blog.api.security.CustomAuthority;
 import com.blog.api.service.ApiService;
 import com.blog.api.service.PermissionService;
 import com.blog.api.service.RoleService;
-import com.github.dozermapper.core.DozerBeanMapperBuilder;
-import com.github.dozermapper.core.Mapper;
-import com.github.dozermapper.core.loader.api.BeanMappingBuilder;
-import com.github.dozermapper.core.loader.api.FieldsMappingOptions;
-import com.github.dozermapper.core.loader.api.TypeMappingOptions;
 import io.swagger.annotations.Api;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,25 +65,35 @@ public class PermissionController extends BaseController<PermissionDto, Permissi
 
 
     @RequestMapping(value = "/dropdown", method = RequestMethod.GET)
-    public ResponseResult<List<MenuDto>> dropdown(int id) {
+    public ResponseResult<Map<String, List>> dropdown(int id) {
 
 
         var permissions = permissionService.getDropdownData(id).stream().
                 map(n -> (PermissionDto) (dozerMapper.map(n, PermissionDto.class))).collect(Collectors.toList());
         var treeList = TreeUtil.toTreeList(permissions, 0);
 
-        var menus = MenuDto.toMenus(treeList,false);
+        var menus = PermisisonTree.toTrees(treeList, false, id);
 
         List list = new ArrayList<>();
-
-        MenuDto menuDto = MenuDto.buildRoot();
+        Map<String, List> map = new HashMap<>();
+        PermisisonTree permisisonTree = PermisisonTree.buildRoot();
         if (menus.size() > 0) {
-            menuDto.setChildren(menus);
-            menuDto.setLabel(menuDto.getTitle() + "(" + Integer.toString(menus.size()) + ")");
-            list.add(menuDto);
+            permisisonTree.setChildren(menus);
+            permisisonTree.setLabel(permisisonTree.getTitle() + "(" + Integer.toString(menus.size()) + ")");
+            list.add(permisisonTree);
 
         }
-        return ResponseUtil.success(list);
+        map.put("all", list);
+
+        //禁用的节点不展开
+        if (id > 0)
+            map.put("expandKeys", permissions.stream().filter(n -> n.getType() != 3 && n.getParentId() != id && n.getId() != id)
+                    .map(n -> n.getId()).collect(Collectors.toList()));
+        else
+            map.put("expandKeys", permissions.stream().filter(n -> n.getType() != 3)
+                    .map(n -> n.getId()).collect(Collectors.toList()));
+
+        return ResponseUtil.success(map);
 
 
     }
@@ -102,18 +108,45 @@ public class PermissionController extends BaseController<PermissionDto, Permissi
                 map(n -> (PermissionDto) (dozerMapper.map(n, PermissionDto.class))).collect(Collectors.toList());
         var treeList = TreeUtil.toTreeList(permissions, 0);
 
-        var menus = MenuDto.toMenus(treeList,true);
+        var menus = PermisisonTree.toTrees(treeList, true, 0);
         Map<String, List> map = new HashMap<>();
         map.put("all", menus);
         if (roleId <= 0) {
             map.put("own", new ArrayList<>());
         } else {
             Role role = roleService.getById(roleId);
-            var roleMenus = MenuDto.toMenus(role).stream().map(n->n.getKey()).collect(Collectors.toList());
+            var roleMenus = PermisisonTree.toTrees(role).stream().map(n -> n.getKey()).collect(Collectors.toList());
             map.put("own", roleMenus);
 
         }
-         map.put("allKeys", permissions.stream().map(n->n.getId()).collect(Collectors.toList()));
+        map.put("allKeys", permissions.stream().map(n -> n.getId()).collect(Collectors.toList()));
+        return ResponseUtil.success(map);
+
+
+    }
+
+
+    @RequestMapping(value = "/menuData", method = RequestMethod.GET)
+    public ResponseResult<Map<String, List>> menuData() {
+
+        //获取用户权限
+        List<PermissionDto> permissions = new ArrayList<>();
+        permissions = getCurrentUser()
+                .getAuthorities()
+                .stream()
+                .map(n -> (dozerMapper.map(((CustomAuthority) n).getPermission(), PermissionDto.class)))
+                .collect(Collectors.toList());
+
+        Map<String, List> map = new HashMap<>();
+        //用户权限转为树形结构
+        var menuList = permissions.stream().filter(n -> n.getType() != 3).collect(Collectors.toList());
+
+        var treeList = TreeUtil.toTreeList(menuList, 0);
+        var menus = MenuTree.toTrees(treeList);
+        map.put("menu", menus);
+        var btnList = permissions.stream().filter(n -> n.getType() == 3).collect(Collectors.toList());
+        map.put("btn", btnList);
+
         return ResponseUtil.success(map);
 
 
@@ -121,7 +154,7 @@ public class PermissionController extends BaseController<PermissionDto, Permissi
 
 
     @Override
-    public ResponseResult<PageResult<PermissionDto>> getPagelist(Pageable pageRequest, PermissionDto dto) {
+    public ResponseResult<PageResult<PermissionDto>> getPagelist(Pageable pageRequest,@RequestParam Map<String,Object> dto) {
         var res = super.getPagelist(pageRequest, dto);
         var page = res.getData();
         var data = page.getList();
