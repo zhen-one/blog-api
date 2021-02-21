@@ -50,6 +50,8 @@ public class PermissionDto extends TreeNode {
 
 
     private boolean checked;
+
+    private String authority;
 //    //上级ID
 //    private int parentId;
 //

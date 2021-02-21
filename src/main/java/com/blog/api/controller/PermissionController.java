@@ -72,26 +72,33 @@ public class PermissionController extends BaseController<PermissionDto, Permissi
                 map(n -> (PermissionDto) (dozerMapper.map(n, PermissionDto.class))).collect(Collectors.toList());
         var treeList = TreeUtil.toTreeList(permissions, 0);
 
+        if (treeList == null) treeList = new ArrayList<PermissionDto>();
+
         var menus = PermisisonTree.toTrees(treeList, false, id);
 
         List list = new ArrayList<>();
         Map<String, List> map = new HashMap<>();
         PermisisonTree permisisonTree = PermisisonTree.buildRoot();
-        if (menus.size() > 0) {
-            permisisonTree.setChildren(menus);
+        permisisonTree.setChildren(menus);
+
+        if (menus.size() > 0)
             permisisonTree.setLabel(permisisonTree.getTitle() + "(" + Integer.toString(menus.size()) + ")");
-            list.add(permisisonTree);
+        list.add(permisisonTree);
 
-        }
         map.put("all", list);
-
+        var expandkeys = new ArrayList<Integer>();
         //禁用的节点不展开
-        if (id > 0)
-            map.put("expandKeys", permissions.stream().filter(n -> n.getType() != 3 && n.getParentId() != id && n.getId() != id)
+        if (id > 0) {
+
+            expandkeys.add(permisisonTree.getKey());
+            expandkeys.addAll(permissions.stream().filter(n -> n.getType() != 3 && n.getParentId() != id && n.getId() != id)
                     .map(n -> n.getId()).collect(Collectors.toList()));
-        else
-            map.put("expandKeys", permissions.stream().filter(n -> n.getType() != 3)
-                    .map(n -> n.getId()).collect(Collectors.toList()));
+
+        } else {
+//            expandkeys.addAll(permissions.stream().filter(n -> n.getType() != 3)
+//                    .map(n -> n.getId()).collect(Collectors.toList()));
+        }
+        map.put("expandKeys", expandkeys);
 
         return ResponseUtil.success(map);
 
@@ -108,6 +115,7 @@ public class PermissionController extends BaseController<PermissionDto, Permissi
                 map(n -> (PermissionDto) (dozerMapper.map(n, PermissionDto.class))).collect(Collectors.toList());
         var treeList = TreeUtil.toTreeList(permissions, 0);
 
+        if (treeList == null) treeList = new ArrayList<PermissionDto>();
         var menus = PermisisonTree.toTrees(treeList, true, 0);
         Map<String, List> map = new HashMap<>();
         map.put("all", menus);
@@ -142,11 +150,14 @@ public class PermissionController extends BaseController<PermissionDto, Permissi
         var menuList = permissions.stream().filter(n -> n.getType() != 3).collect(Collectors.toList());
 
         var treeList = TreeUtil.toTreeList(menuList, 0);
+
+        if (treeList == null) treeList = new ArrayList<PermissionDto>();
         var menus = MenuTree.toTrees(treeList);
         map.put("menu", menus);
         var btnList = permissions.stream().filter(n -> n.getType() == 3).collect(Collectors.toList());
         map.put("btn", btnList);
 
+        map.put("authorities", permissions.stream().map(n->n.getAuthority()).collect(Collectors.toList()));
         return ResponseUtil.success(map);
 
 
@@ -154,7 +165,7 @@ public class PermissionController extends BaseController<PermissionDto, Permissi
 
 
     @Override
-    public ResponseResult<PageResult<PermissionDto>> getPagelist(Pageable pageRequest,@RequestParam Map<String,Object> dto) {
+    public ResponseResult<PageResult<PermissionDto>> getPagelist(Pageable pageRequest, @RequestParam Map<String, Object> dto) {
         var res = super.getPagelist(pageRequest, dto);
         var page = res.getData();
         var data = page.getList();

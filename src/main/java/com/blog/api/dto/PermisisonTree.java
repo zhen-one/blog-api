@@ -50,7 +50,7 @@ public class PermisisonTree {
     public static List<PermisisonTree> toTrees(Collection<PermissionDto> permissions, boolean checkable, int permission_id) {
         List<PermisisonTree> permisisonTreeList = new ArrayList<>();
         for (PermissionDto permissionDto : permissions) {
-            permisisonTreeList.add(toTree(permissionDto,checkable,permission_id));
+            permisisonTreeList.add(toTree(permissionDto, checkable, permission_id));
         }
         return permisisonTreeList;
     }
@@ -64,7 +64,7 @@ public class PermisisonTree {
         for (Permission permission : permissions) {
             list.add(MapperUtil.map(permission, PermissionDto.class));
         }
-        return PermisisonTree.toTrees(list,true,0);
+        return PermisisonTree.toTrees(list, true, 0);
 
     }
 
@@ -74,20 +74,26 @@ public class PermisisonTree {
         menu.key = permissionDto.getId();
         menu.title = permissionDto.getName();
 
-        if(permission_id>0){
-            boolean flag=permissionDto.getType()==3;
-            menu.disabled=permissionDto.getId()==permission_id
-                    ||permissionDto.getParentId()==permission_id
-                    ||permissionDto.getType()==3;
+        if (permission_id > 0) {
+            boolean flag = permissionDto.getType() == 3;
+            if (checkable) {
+                menu.disabled = permissionDto.getId() == permission_id
+                        || permissionDto.getParentId() == permission_id
+                        || permissionDto.getType() == 3;
+            } else {
+                menu.disabled =
+                        permissionDto.getParentId() == permission_id
+                                || permissionDto.getType() == 3;
+            }
         }
-        menu.checkable=checkable;
+        menu.checkable = checkable;
         if (permissionDto.getChildren() != null) {
             menu.children = toTrees(
                     permissionDto
                             .getChildren()
                             .stream()
                             .map(n -> (PermissionDto) n)
-                            .collect(Collectors.toList()),checkable,permission_id);
+                            .collect(Collectors.toList()), checkable, permission_id);
             if (menu.children != null && menu.children.size() > 0) {
                 menu.label = menu.title + "(" + Integer.toString(menu.children.size()) + ")";
             }

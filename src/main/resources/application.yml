@@ -16,6 +16,7 @@ security:
       - /api/auth/login
       - /api/auth/refresh
       - /webjars/**
+      - /api/post/publicList
 #      - /api/role/getAll
 #mybatis配置
 

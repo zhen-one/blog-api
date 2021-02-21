@@ -43,7 +43,7 @@ public class MenuTree {
     private static MenuTree toTree(PermissionDto permissionDto) {
         var menu = new MenuTree();
         menu.icon=permissionDto.getIcon();
-        menu.name=permissionDto.getCode();
+        menu.name=permissionDto.getName();
         menu.path=permissionDto.getPath();
         menu.component = permissionDto.getComponent();
 

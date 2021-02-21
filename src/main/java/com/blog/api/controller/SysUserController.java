@@ -31,16 +31,14 @@ import javax.transaction.Transactional;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Api(value = "用户管理")
 @RestController
 @RequestMapping("/api/user")
 public class SysUserController extends BaseController<UserDto, SysUser> {
+
 
     @Autowired
     private SysUserService userService;

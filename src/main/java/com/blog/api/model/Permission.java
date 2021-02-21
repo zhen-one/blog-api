@@ -62,6 +62,8 @@ public class Permission extends BaseModel {
      */
     private String description;
 
+    private String authority;
+
 
     @OneToOne
     @JoinColumn(name = "api_id", referencedColumnName = "id")
