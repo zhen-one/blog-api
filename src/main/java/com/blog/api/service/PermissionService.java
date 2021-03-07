@@ -32,21 +32,6 @@ public class PermissionService extends BaseService<Permission, Integer> {
 
     }
 
-//    public List<Permission> getPermissionByUserid(int id) {
-//        var a = new ArrayList<Permission>();
-//        var p = new Permission();
-//        p.setApi(new Api("/api/user/getAll"));
-//        a.add(p);
-//        return a;
-//
-//    }
-
-    public Permission getPermissionByurl(String url) {
-//        var p=new Permission();
-//        p.setFunctionUrl("/api/user/getAll");
-//        return p;
-        return null;
-    }
 
 
     public List<Permission> getDropdownData(int permission_id) {

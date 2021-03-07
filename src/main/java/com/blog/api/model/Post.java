@@ -2,17 +2,17 @@ package com.blog.api.model;
 
 
 import com.blog.api.common.anotation.Field;
+import com.blog.api.enums.PostRenderType;
 import com.blog.api.enums.PublishState;
 import com.blog.api.model.base.BaseModel;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Table
@@ -22,9 +22,13 @@ import java.util.Date;
 @Data
 public class Post extends BaseModel {
 
+    @Enumerated(EnumType.STRING)
+    @Field(description = "发布状态",query = true,queryOp = Field.Operator.equal)
+    private PublishState publishState=PublishState.Draft;
 
-    @Field(description = "发布状态",query = true,queryOp = Field.Operator.like)
-    private PublishState publishState;
+    @Enumerated(EnumType.STRING)
+    @Field(description = "文章类型",query = true,queryOp = Field.Operator.equal)
+    private PostRenderType postRenderType;
 
     private String author;
 
@@ -42,6 +46,7 @@ public class Post extends BaseModel {
 
     private String category;
 
+    @Field(description = "分类")
     private long categoryId;
 
     private int likes;
@@ -50,6 +55,12 @@ public class Post extends BaseModel {
     private int viewNum;
 
     private int commentNum;
+
+
+    @ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
+    @JoinTable(name="post_tag_rel",joinColumns = @JoinColumn(name ="tag_id"),
+            inverseJoinColumns = @JoinColumn(name="post_id"))
+    private Set<Tag> tags=new HashSet<>();
 
 }
 

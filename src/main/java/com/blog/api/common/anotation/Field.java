@@ -28,7 +28,7 @@ public @interface Field {
      *
      * @return
      */
-    public boolean unique() default true;
+    public boolean unique() default false;
 
 
     /**
