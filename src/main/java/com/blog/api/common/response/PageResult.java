@@ -3,9 +3,7 @@ package com.blog.api.common.response;
 import lombok.Data;
 import org.springframework.data.domain.Page;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -22,10 +20,10 @@ public class PageResult<T> {
         if (pageCount < 0) pageCount = 0;
         if (list == null) list = new ArrayList<>();
         this.pagination = new Pagination();
-        this.pagination.totalCount = totalCount;
+        this.pagination.total = totalCount;
         this.pagination.pageCount = pageCount;
-        this.pagination.pageIndex = pageIndex;
-        this.pagination.pageSize = pageCount;
+        this.pagination.page = pageIndex;
+        this.pagination.size = pageCount;
         this.list = list;
     }
 
@@ -36,11 +34,11 @@ public class PageResult<T> {
 
     @Data
     public class Pagination {
-        private int totalCount;
+        private int total;
 
-        private int pageIndex;
+        private int page;
 
-        private int pageSize;
+        private int size;
 
         private int pageCount;
     }

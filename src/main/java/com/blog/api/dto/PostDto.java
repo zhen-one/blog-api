@@ -3,6 +3,7 @@ package com.blog.api.dto;
 import com.blog.api.common.anotation.Field;
 import com.blog.api.enums.PostRenderType;
 import com.blog.api.enums.PublishState;
+import com.blog.api.model.Post;
 import com.blog.api.model.Tag;
 import lombok.Data;
 import lombok.Getter;
@@ -54,4 +55,7 @@ public class PostDto extends BaseDto{
 
     private List<Tag> tags;
 
+    private Post prev;
+
+    private Post next;
 }

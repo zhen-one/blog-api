@@ -1,27 +1,11 @@
-package com.blog.api.model;
-
+package com.blog.api.dto;
 
 import com.blog.api.enums.ComemntModuleType;
 import com.blog.api.enums.PublishState;
-import com.blog.api.model.base.BaseModel;
 import lombok.Data;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Table;
-import java.util.Date;
-
-
-@Table
-@Entity
-@DynamicUpdate
-@DynamicInsert
 @Data
-public class Comment extends BaseModel {
-
+public class CommentDto extends BaseDto{
 
     /**
      * 所属模块类型
@@ -71,6 +55,4 @@ public class Comment extends BaseModel {
     private String ip_location;
 
     private String equipment;
-
-
 }

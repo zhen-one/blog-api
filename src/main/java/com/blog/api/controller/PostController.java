@@ -7,6 +7,7 @@ import com.blog.api.dto.ApiDto;
 import com.blog.api.dto.PermissionDto;
 import com.blog.api.dto.PostDto;
 import com.blog.api.dto.RoleDto;
+import com.blog.api.enums.PublishState;
 import com.blog.api.model.Api;
 import com.blog.api.model.Post;
 import com.blog.api.model.Role;
@@ -15,6 +16,7 @@ import com.blog.api.service.ApiService;
 import com.blog.api.service.CategoryService;
 import com.blog.api.service.PostService;
 import com.blog.api.service.TagService;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +49,25 @@ public class PostController extends BaseController<PostDto, Post> {
     }
 
 
+    /**
+     * 获取文章详情
+     *
+     * @param id
+     * @return
+     * @throws NotFoundException
+     */
+    @Override
+    public ResponseResult<PostDto> get(@PathVariable("id") int id) throws NotFoundException {
+        var post = postService.getById(id);
+        PostDto postDto = dozerMapper.map(post, PostDto.class);
+        var prev = postService.getPrev(id);
+        var next = postService.getNext(id);
+        postDto.setNext(prev);
+        postDto.setNext(next);
+        return ResponseUtil.success(postDto);
+
+    }
+
     @GetMapping("/publicList")
     public ResponseResult<PageResult<PostDto>> getPublicPosts(
             @PageableDefault(page = 0, value = 10, sort = {"createdAt"}, direction = Sort.Direction.DESC)
@@ -56,7 +77,7 @@ public class PostController extends BaseController<PostDto, Post> {
         var newPage =
                 PageRequest.of(Math.max(pageRequest.getPageNumber() - 1, 0), pageRequest.getPageSize(), pageRequest.getSort());
 
-        dto.put("publishState", "Published");
+        dto.put("publishState", PublishState.Published);
 
         var page = postService.getPageList(dto, newPage);
 
@@ -92,7 +113,7 @@ public class PostController extends BaseController<PostDto, Post> {
     @Override
     @Transactional
     @PostMapping("/edit")
-    public ResponseResult<PostDto> edit(@RequestBody @NotNull  PostDto dto) {
+    public ResponseResult<PostDto> edit(@RequestBody @NotNull PostDto dto) {
 
         var category = categoryService.getById(dto.getCategoryId());
         dto.setCategory(category.getCategoryName());

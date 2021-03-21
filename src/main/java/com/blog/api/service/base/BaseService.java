@@ -301,10 +301,10 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
      */
     public Page<T> getPageList(Map<String, Object> params, Pageable pageable) {
         Field[] fields = entityClass.getDeclaredFields();
-        var superClass=entityClass.getSuperclass();
-        var superFields= superClass.getDeclaredFields();
+        var superClass = entityClass.getSuperclass();
+        var superFields = superClass.getDeclaredFields();
 
-        List<Field> fieldList=new ArrayList<>();
+        List<Field> fieldList = new ArrayList<>();
         fieldList.addAll(Arrays.asList(fields));
         fieldList.addAll(Arrays.asList(superFields));
 
@@ -336,13 +336,13 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
                     Object val = params.get(fieldName);
 
-                    var fieldType=field.getType();
-                    var b=boolean.class;
+                    var fieldType = field.getType();
+                    var b = boolean.class;
 
                     System.out.println(fieldType.getName());
 
-                    if(fieldType.getName()==boolean.class.getName()){
-                        val= Boolean.parseBoolean(val.toString());
+                    if (fieldType.getName() == boolean.class.getName()) {
+                        val = Boolean.parseBoolean(val.toString());
                     }
                     if (val == null) continue;
 
@@ -378,6 +378,89 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 //        Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) ->
 //                cb.and(predicates.toArray(new Predicate[predicates.size()]));//以and的形式拼接查询条件，也可以用.or()
         return this.pageList(specificationTotal, pageable);
+
+    }
+
+    /**
+     * 全部列表 带查询参数
+     *
+     * @param params
+     * @return
+     */
+    public List<T> getlistByWhere(Map<String, Object> params) {
+        Field[] fields = entityClass.getDeclaredFields();
+        var superClass = entityClass.getSuperclass();
+        var superFields = superClass.getDeclaredFields();
+
+        List<Field> fieldList = new ArrayList<>();
+        fieldList.addAll(Arrays.asList(fields));
+        fieldList.addAll(Arrays.asList(superFields));
+
+        List<Specification<T>> specifications = new ArrayList<>();
+
+        Specification<T> specificationTotal = new Specification<T>() {
+            @Override
+            public Predicate toPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                return null;
+            }
+        };
+        List<Field> aa = new ArrayList<>();
+
+        for (Field field : fieldList) {
+            if (field.isAnnotationPresent(com.blog.api.common.anotation.Field.class)) {
+                com.blog.api.common.anotation.Field fieldAnnonation =
+                        field.getAnnotation(com.blog.api.common.anotation.Field.class);
+                if (fieldAnnonation.query()) {
+
+                    String fieldName = "";
+                    if (!fieldAnnonation.queryName().isBlank()) fieldName = fieldAnnonation.queryName();
+                    else fieldName = field.getName();
+
+                    if (!params.containsKey(fieldName)) {
+                        continue;
+                    }
+
+                    Object val = params.get(fieldName);
+
+                    var fieldType = field.getType();
+                    var b = boolean.class;
+
+                    System.out.println(fieldType.getName());
+
+                    if (fieldType.getName() == boolean.class.getName()) {
+                        val = Boolean.parseBoolean(val.toString());
+                    }
+                    if (val == null) continue;
+
+                    Object finalVal = val;
+                    Specification<T> specification = (Specification<T>) (root, criteriaQuery, cb) -> {
+
+                        Predicate predict = null;
+
+                        switch (fieldAnnonation.queryOp()) {
+                            case equal: {
+                                predict = cb.equal(root.get(field.getName()), finalVal);
+                                break;
+                            }
+                            case like: {
+                                predict = cb.like(root.get(field.getName()), "%" + finalVal + "%");
+                                break;
+                            }
+                            case greaterThan: {
+                                break;
+                            }
+                        }
+
+                        return predict;
+                    };
+                    specificationTotal = specificationTotal.and(specification);
+                    specifications.add(specification);
+
+                }
+            }
+        }
+
+        return this.getlistByWhere(specificationTotal);
 
     }
 

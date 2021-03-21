@@ -173,4 +173,13 @@ public class PermissionController extends BaseController<PermissionDto, Permissi
         page.setList(treeList);
         return ResponseUtil.success(page);
     }
+
+    @RequestMapping(value = "/all", method = RequestMethod.GET)
+    public ResponseResult<List<PermissionDto>> getPermissions(@RequestParam Map<String, Object> dto) {
+
+        var data = baseService.getlistByWhere(dto);
+        var dtos=data.stream().map(n->dozerMapper.map(n,PermissionDto.class)).collect(Collectors.toList());
+        var treeList = TreeUtil.toTreeList(dtos, 0);
+        return ResponseUtil.success(treeList);
+    }
 }

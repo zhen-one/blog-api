@@ -17,11 +17,12 @@ import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @io.swagger.annotations.Api(value = "接口管理")
 @RestController
 @RequestMapping("/api/manage")
-public class ApiController extends BaseController<ApiDto, Api>{
+public class ApiController extends BaseController<ApiDto, Api> {
 
 
     @Autowired
@@ -29,15 +30,22 @@ public class ApiController extends BaseController<ApiDto, Api>{
 
     @Autowired
     public ApiController(ApiService service) {
-        super.baseService=service;
+        super.baseService = service;
     }
 
 
-
-
     @Override
-    @RequestMapping(value = "/getAll",method = RequestMethod.GET)
+    @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     public ResponseResult<List<ApiDto>> getAll() {
         return super.getAll();
+    }
+
+
+    @RequestMapping(value = "/list/available", method = RequestMethod.GET)
+    public ResponseResult<List<ApiDto>> availableList() {
+
+        var apiList = apiService.getAvailableList();
+        var apiDtoList = apiList.stream().map(n -> dozerMapper.map(n, ApiDto.class)).collect(Collectors.toList());
+        return ResponseUtil.success(apiDtoList);
     }
 }

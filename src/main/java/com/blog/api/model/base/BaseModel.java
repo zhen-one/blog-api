@@ -45,7 +45,7 @@ public class BaseModel {
 
     @Field(description = "启用状态",query = true,queryOp = Field.Operator.equal,queryName = "enable")
     @Column
-    private boolean isEnable;
+    private boolean isEnable=true;
 
     @Override
     public boolean equals(Object obj) {

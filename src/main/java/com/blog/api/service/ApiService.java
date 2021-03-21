@@ -48,6 +48,9 @@ public class ApiService extends BaseService<Api, Integer> {
     }
 
 
+    public List<Api> getAvailableList() {
+        return dal.getAvailableList();
+    }
 
 
 }

@@ -1,5 +1,6 @@
 package com.blog.api.security;
 
+import com.blog.api.security.filters.WebSecurityCorsFilter;
 import com.blog.api.security.jwt.JwtAccessDeniedHandler;
 import com.blog.api.security.jwt.JwtAuthenticationEntryPoint;
 import com.blog.api.security.jwt.JwtAuthenticationTokenFilter;
@@ -21,6 +22,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -81,8 +83,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable().exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint).
                 accessDeniedHandler(jwtAccessDeniedHandler).and()
-                .cors()
-                .and()
+               /* .cors()*/
+              /*  .and()*/
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -100,6 +102,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().headers().cacheControl();
 
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new WebSecurityCorsFilter(), ChannelProcessingFilter.class);
+
 
 
 
