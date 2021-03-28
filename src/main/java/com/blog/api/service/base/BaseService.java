@@ -31,6 +31,7 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
     protected SecurityUser getCurrentUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) return null;
+        if(auth.getPrincipal().equals("anonymousUser"))return null;
         return (SecurityUser) auth.getPrincipal();
     }
 

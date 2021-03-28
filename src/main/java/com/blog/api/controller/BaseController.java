@@ -22,8 +22,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.security.PermitAll;
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.Array;
@@ -66,11 +69,13 @@ public abstract class BaseController<Dto extends BaseDto, Entity extends BaseMod
 
     /**
      * 登陆用户
+     *
      * @return
      */
     protected SecurityUser getCurrentUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) return null;
+        if (auth.getPrincipal().equals("anonymousUser")) return null;
         return (SecurityUser) auth.getPrincipal();
     }
 
@@ -96,7 +101,7 @@ public abstract class BaseController<Dto extends BaseDto, Entity extends BaseMod
     }
 
 
-    public ResponseResult<List<Dto>>  getAll() {
+    public ResponseResult<List<Dto>> getAll() {
         return ResponseUtil.success(baseService.getEnabledList()
                 .stream()
                 .map(n -> (Dto) (dozerMapper.map(n, dtoClass)))
@@ -159,7 +164,7 @@ public abstract class BaseController<Dto extends BaseDto, Entity extends BaseMod
     @GetMapping("/list")
     public ResponseResult<PageResult<Dto>> getPagelist(
             @PageableDefault(page = 0, value = 10, sort = {"createdAt"}, direction = Sort.Direction.DESC)
-                    Pageable pageRequest,@RequestParam Map<String,Object> dto) {
+                    Pageable pageRequest, @RequestParam Map<String, Object> dto) {
 
         System.out.println(dto);
         var newPage =
@@ -168,13 +173,26 @@ public abstract class BaseController<Dto extends BaseDto, Entity extends BaseMod
 //        var params = (Entity) dozerMapper.map(dto, entityClass);
         var page = baseService.getPageList(dto, newPage);
         System.out.println(page);
-        var res = page.map(n -> (Dto)dozerMapper.map(n, dtoClass));
+        var res = page.map(n -> (Dto) dozerMapper.map(n, dtoClass));
 
         var pageResult = PageResult.toPageResult(res);
 
         return ResponseUtil.success(pageResult);
     }
 
+    protected String getRemortIP() {
+        HttpServletRequest request = getRequest();
+        if (request.getHeader("x-forwarded-for") == null) {
+            return request.getRemoteAddr();
+        }
+        return request.getHeader("x-forwarded-for");
+    }
 
+    protected  HttpServletRequest getRequest(){
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = attributes.getRequest();
+        return request;
+
+    }
 
 }

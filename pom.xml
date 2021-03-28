@@ -103,11 +103,11 @@
             <version>5.5.7</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>net.sf.dozer</groupId>-->
-<!--            <artifactId>dozer</artifactId>-->
-<!--            <version>5.4.0</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>net.sf.dozer</groupId>-->
+        <!--            <artifactId>dozer</artifactId>-->
+        <!--            <version>5.4.0</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>com.github.dozermapper</groupId>
             <artifactId>dozer-core</artifactId>
@@ -126,7 +126,17 @@
             <artifactId>springfox-swagger-ui</artifactId>
             <version>2.9.2</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.lionsoul</groupId>
+            <artifactId>ip2region</artifactId>
+            <version>1.7.2</version>
+        </dependency>
+        <!-- UA解析工具 -->
+        <dependency>
+            <groupId>eu.bitwalker</groupId>
+            <artifactId>UserAgentUtils</artifactId>
+            <version>1.21</version>
+        </dependency>
     </dependencies>
 
     <build>

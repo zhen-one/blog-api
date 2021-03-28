@@ -59,6 +59,8 @@ public class PostController extends BaseController<PostDto, Post> {
     @Override
     public ResponseResult<PostDto> get(@PathVariable("id") int id) throws NotFoundException {
         var post = postService.getById(id);
+        post.setViewNum(post.getViewNum()+1);
+        postService.edit(post);
         PostDto postDto = dozerMapper.map(post, PostDto.class);
         var prev = postService.getPrev(id);
         var next = postService.getNext(id);
@@ -68,7 +70,7 @@ public class PostController extends BaseController<PostDto, Post> {
 
     }
 
-    @GetMapping("/publicList")
+    @GetMapping("/public/list")
     public ResponseResult<PageResult<PostDto>> getPublicPosts(
             @PageableDefault(page = 0, value = 10, sort = {"createdAt"}, direction = Sort.Direction.DESC)
                     Pageable pageRequest, @RequestParam Map<String, Object> dto) {
