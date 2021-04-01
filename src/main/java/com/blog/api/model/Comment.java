@@ -30,6 +30,8 @@ public class Comment extends BaseModel {
     @Enumerated(EnumType.STRING)
     private PublishState publishState=PublishState.Published;
     //模块id
+
+    @Field(query = true,queryOp = Field.Operator.equal)
     private int moduleId;
 
     /**

@@ -64,7 +64,7 @@ public class PostController extends BaseController<PostDto, Post> {
         PostDto postDto = dozerMapper.map(post, PostDto.class);
         var prev = postService.getPrev(id);
         var next = postService.getNext(id);
-        postDto.setNext(prev);
+        postDto.setPrev(prev);
         postDto.setNext(next);
         return ResponseUtil.success(postDto);
 

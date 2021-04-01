@@ -68,6 +68,7 @@ public class CommentController extends BaseController<CommentDto, Comment> {
         dto.put("publishState", PublishState.Published);
 
         dto.put("parentId", 0);
+
         var page = commentService.getPageList(dto, newPage);
 
 

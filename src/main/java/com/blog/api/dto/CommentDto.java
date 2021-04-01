@@ -73,4 +73,6 @@ public class CommentDto extends BaseDto{
     private String equipment;
 
     private List<Comment> sub;
+
+    private boolean expand=true;
 }
