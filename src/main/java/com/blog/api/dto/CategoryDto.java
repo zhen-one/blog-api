@@ -11,5 +11,7 @@ public class CategoryDto extends BaseDto {
 
     private String description;
 
+    private int postCount;
+
 
 }

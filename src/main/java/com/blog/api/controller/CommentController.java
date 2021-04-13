@@ -5,15 +5,9 @@ import com.blog.api.common.response.ResponseResult;
 import com.blog.api.common.response.ResponseUtil;
 import com.blog.api.common.util.IPUtil;
 import com.blog.api.dto.CommentDto;
-import com.blog.api.dto.PostDto;
 import com.blog.api.enums.PublishState;
 import com.blog.api.model.Comment;
-import com.blog.api.model.Post;
-import com.blog.api.model.Tag;
-import com.blog.api.service.CategoryService;
 import com.blog.api.service.CommentService;
-import com.blog.api.service.PostService;
-import com.blog.api.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Map;
 
 @io.swagger.annotations.Api(value = "文章管理")
@@ -40,18 +31,20 @@ public class CommentController extends BaseController<CommentDto, Comment> {
     @Autowired
     public CommentController(CommentService commentService) {
         super.baseService = commentService;
-    }
 
+    }
 
 
     @Override
     public ResponseResult<CommentDto> add(@RequestBody @NotNull CommentDto dto) {
-
+        if (getCurrentUser() != null) {
+            dto.setSysUserCreated(true);
+        }
         dto.setIp(super.getRemortIP());
         dto.setIp_location(IPUtil.parseIP(dto.getIp()));
-        String userAgent=super.getRequest().getHeader("User-Agent");
+        String userAgent = super.getRequest().getHeader("User-Agent");
         dto.setEquipment(IPUtil.parseUserAgent(userAgent).toString());
-        var newComment = commentService.AddNewComment(dozerMapper.map(dto, Comment.class));
+        var newComment = commentService.addNewComment(dozerMapper.map(dto, Comment.class));
         return ResponseUtil.success(dozerMapper.map(newComment, CommentDto.class));
     }
 
@@ -81,6 +74,17 @@ public class CommentController extends BaseController<CommentDto, Comment> {
         var res = PageResult.toPageResult(commentDtos);
 
         return ResponseUtil.success(res);
+    }
+
+    @PostMapping("public/{id}/like")
+    public ResponseResult<Number> likeComment(@PathVariable("id") int id) {
+        var comment = commentService.getById(id);
+        if (comment != null) {
+            int likes = commentService.like(id);
+            return ResponseUtil.success(likes);
+        } else {
+            return ResponseUtil.fail("评论已不存在！");
+        }
     }
 
 

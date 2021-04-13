@@ -44,6 +44,7 @@ public class Post extends BaseModel {
     //简介
     private String degest;
 
+    @Field(query = true,queryOp = Field.Operator.equal)
     private String category;
 
     @Field(description = "分类")

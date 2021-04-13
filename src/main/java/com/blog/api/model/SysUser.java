@@ -45,6 +45,9 @@ public class SysUser extends BaseModel {
     @Column
     private int gender;
 
+    @Column
+    private String avatar;
+
 
     @ManyToMany(cascade = CascadeType.MERGE,fetch=FetchType.EAGER)
     @JoinTable(name="user_role_relation",joinColumns = @JoinColumn(name ="user_id"),

@@ -27,6 +27,10 @@ public class SecurityUser implements UserDetails {
 
 
     private String password;
+
+    private String avatar;
+
+    private String nickName;
     private Collection<? extends GrantedAuthority> authorities;
 
 
@@ -35,6 +39,8 @@ public class SecurityUser implements UserDetails {
         if (null != user) {
             this.setUserName(user.getAccount());
             this.setPassword(user.getPassword());
+            this.setAvatar(user.getAvatar());
+            this.nickName=user.getNickName();
             this.setAuthorities(authorities);
             if (user.getRoles() != null) {
                 for (Role role : user.getRoles()) {
@@ -58,10 +64,20 @@ public class SecurityUser implements UserDetails {
         return this.password;
     }
 
+    public String getAvatar() {
+        return this.avatar;
+    }
+
     @Override
     public String getUsername() {
         return this.userName;
     }
+
+
+    public String getNickname() {
+        return this.nickName;
+    }
+
 
     //账户是否过期
     @Override

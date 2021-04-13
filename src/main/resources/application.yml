@@ -16,10 +16,13 @@ security:
       - /api/auth/login
       - /api/auth/refresh
       - /webjars/**
-      - /api/post/public/list
+      - /api/post/public
+      - /api/category/public/collect
       - /api/post/get
       - /api/comment/add
-      - /api/comment/public/list
+      - /api/comment/public
+      - /api/oauth/render
+      - /api/oauth/callback
 #      - /api/role/getAll
 #mybatis配置
 
@@ -28,3 +31,17 @@ pagehelper:
   reasonable: true
   supportMethodsArguments: true
   params: count=countSql
+
+oauth:
+  gitee:
+    clientid: 9354be41c89b598100d5e20389181938d47ca9b4efedcdbec64a70fd5dd7f1ad
+    secret: 138ec6528b14b14a478e9a6d10f30487c41dffd52bd92ab94fd8a199886b6dcc
+    redirect: http://lvzhenHome.com/oauth
+  weibo:
+    clientid: 2294758824
+    secret: c0f694155581968b78b6677c14ba4bcf
+    redirect: http://lvzhenHome.com/oauth
+  github:
+    clientid: bb333c3876409b062c75
+    secret: a899f64e72af296aff90634d8e6961083a439e83
+    redirect: http://lvzhenHome.com/oauth

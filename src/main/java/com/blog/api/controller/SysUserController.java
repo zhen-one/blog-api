@@ -6,6 +6,7 @@ import com.blog.api.common.response.ResponseUtil;
 import com.blog.api.dto.UserDto;
 import com.blog.api.model.Role;
 import com.blog.api.model.SysUser;
+import com.blog.api.model.UserProfile;
 import com.blog.api.model.UserRole;
 import com.blog.api.service.RoleService;
 import com.blog.api.service.SysUserService;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpMethod;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -103,6 +105,16 @@ public class SysUserController extends BaseController<UserDto, SysUser> {
 
         }
         return ResponseUtil.success(super.dozerMapper.map(userService.edit(newUser), UserDto.class));
+    }
+
+
+    @RequestMapping(value = "/profile", method = RequestMethod.GET)
+    public ResponseResult<UserProfile> getUserProfile() {
+        var user=getCurrentUser();
+        UserProfile profile=new UserProfile();
+        profile.setName(user.getNickname());
+        profile.setAvatar(user.getAvatar());
+        return ResponseUtil.success(profile);
     }
 
 }

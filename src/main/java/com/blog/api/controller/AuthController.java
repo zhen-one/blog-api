@@ -25,7 +25,6 @@ public class AuthController {
     @Autowired
     private SysUserService authService;
 
-    @PermitAll()
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseResult<TokenDto> createToken(
             @Validated @RequestBody LoginDto loginDto
@@ -42,7 +41,6 @@ public class AuthController {
         return ResponseUtil.success(tokenDto);
     }
 
-    @PermitAll()
     @RequestMapping(value = "/refresh", method = RequestMethod.GET)
     public ResponseResult<TokenDto> refreshToken(
             String token
@@ -55,6 +53,9 @@ public class AuthController {
 
 
     }
+
+
+
 
 
 }

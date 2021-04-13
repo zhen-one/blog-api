@@ -1,5 +1,6 @@
 package com.blog.api;
 
+import com.blog.api.model.Comment;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,7 +15,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @SpringBootApplication()
@@ -28,6 +33,8 @@ public class BlogApiApplication {
         SpringApplication.run(BlogApiApplication.class, args);
 
     }
+//    public static void main(String[] args) {
+//    }
 
 //    public static void main(String[] args) throws URISyntaxException, IOException {
 //        System.out.println("java.home : "+System.getProperty("java.home"));

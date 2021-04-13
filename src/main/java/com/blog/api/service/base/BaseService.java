@@ -31,7 +31,7 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
     protected SecurityUser getCurrentUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) return null;
-        if(auth.getPrincipal().equals("anonymousUser"))return null;
+        if (auth.getPrincipal().equals("anonymousUser")) return null;
         return (SecurityUser) auth.getPrincipal();
     }
 
@@ -128,7 +128,7 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
 
     ;
 
-    public final T edit(T entity) {
+    public  T edit(T entity) {
         this.beforeEdit(entity);
         entity.setUpdatedAt(new Date());
         var user = getCurrentUser();
@@ -172,7 +172,7 @@ public abstract class BaseService<T extends BaseModel, ID extends Integer> {
     }
 
     public T getById(ID id) {
-        return dal.getOne(id);
+        return dal.findById(id).get();
     }
 
 

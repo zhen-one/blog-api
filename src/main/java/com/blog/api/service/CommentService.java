@@ -22,6 +22,7 @@ import java.util.List;
 @Service
 public class CommentService extends BaseService<Comment, Integer> {
 
+
     private CommentRepository dal;
 
     @Autowired
@@ -35,23 +36,29 @@ public class CommentService extends BaseService<Comment, Integer> {
 
     }
 
-    public List<Comment> getSubList(int id){
-        return  dal.getSubList(id);
+    public List<Comment> getSubList(int id) {
+        var temp = super.dal;
+        return dal.getSubList(id);
     }
 
 
     @Transactional
-    public Comment AddNewComment(Comment comment){
+    public Comment addNewComment(Comment comment) {
         super.add(comment);
-        if(comment.getComemntModuleType()== ComemntModuleType.post){
-            Post post=postRepository.getOne(comment.getModuleId());
-            post.setCommentNum(post.getCommentNum()+1);
+        if (comment.getComemntModuleType() == ComemntModuleType.post) {
+            Post post = postRepository.getOne(comment.getModuleId());
+            post.setCommentNum(post.getCommentNum() + 1);
             postRepository.save(post);
         }
-       return comment;
+        return comment;
     }
 
 
+    @Transactional
+    public int like(int id) {
+        dal.like(id);
+        return dal.findById(id).get().getLikes()+1;
+    }
 
 
 }

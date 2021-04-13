@@ -4,6 +4,7 @@ import com.blog.api.model.Role;
 import com.blog.api.model.base.BaseModel;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
 
@@ -21,6 +22,7 @@ public class UserDto extends BaseDto {
 
     private String email;
 
+    private String avatar;
 
     private int gender;
 
