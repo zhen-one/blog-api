@@ -155,8 +155,8 @@ public class PostController extends BaseController<PostDto, Post> {
     public ResponseResult<Map<String, Object>> archive() {
 
         List<PostDto> list = postService.getArchive();
-        List<CategoryDto> categoryCollect = categoryService.getCategories();
-        List<Tag> tags = tagService.getEnabledList();
+        List<CategoryDto> categorys = categoryService.getCategories();
+        List<TagDto> tags = tagService.getTags();
         Integer postCount = postService.getPostCount();
 
         Map<Integer, List<PostDto>> yearGroup = list.stream()
@@ -215,7 +215,7 @@ public class PostController extends BaseController<PostDto, Post> {
         Map<String, Object> resultMap = new HashMap<>();
 
         resultMap.put("archive", data);
-        resultMap.put("categories", categoryCollect);
+        resultMap.put("categories", categorys);
         resultMap.put("tags", tags);
         resultMap.put("postCount", postCount);
         return ResponseUtil.success(resultMap);

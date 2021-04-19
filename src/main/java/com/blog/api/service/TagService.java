@@ -1,6 +1,8 @@
 package com.blog.api.service;
 
 import cn.hutool.core.util.StrUtil;
+import com.blog.api.dto.CategoryDto;
+import com.blog.api.dto.TagDto;
 import com.blog.api.model.Api;
 import com.blog.api.model.Tag;
 import com.blog.api.repo.ApiRepository;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -28,7 +31,16 @@ public class TagService extends BaseService<Tag, Integer> {
     }
 
 
-
+    public List<TagDto> getTags() {
+        var list = dal.getTags();
+        return list.stream().map(n -> {
+            var dto = new TagDto();
+            dto.setId(Integer.valueOf(n.get("id").toString()));
+            dto.setTagName(n.get("tag_name").toString());
+            dto.setPostCount(Integer.valueOf(n.get("post_count").toString()));
+            return dto;
+        }).collect(Collectors.toList());
+    }
 
 
 

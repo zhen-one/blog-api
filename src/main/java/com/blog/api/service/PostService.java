@@ -10,10 +10,14 @@ import com.blog.api.repo.PostRepository;
 import com.blog.api.service.base.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.sql.Date;
@@ -49,8 +53,27 @@ public class PostService extends BaseService<Post, Integer> {
         return dal.findById(id).get().getLikes();
     }
 
+//    @PersistenceContext
+//    EntityManager manager;
+//
+//    List<Post> query(Set<Integer> deptIds) {
+//        CriteriaBuilder cb = manager.getCriteriaBuilder();
+//        CriteriaQuery<User> q = cb.createQuery(User.class);
+//        Root<User> r = q.from(User.class);
+//        Join<User, Department> j = r.join("departments", JoinType.LEFT);
+//        q.select(r).where(j.get("id").in(deptIds)).orderBy(cb.asc(r.get("time")));
+//        return manager.createQuery(q).getResultList();
+//    }
+
+
     public Page<Post> listByTag(String tagName, Pageable pageable) {
-        return dal.getListByTag(pageable, tagName);
+        int start = pageable.getPageNumber() * pageable.getPageSize();
+        int end = pageable.getPageNumber() + 1 * pageable.getPageSize();
+        List<Integer> postIds = dal.getPostIdsByTag(start, end, tagName);
+        var list = postIds.stream().map(n -> super.getById(n)).collect(Collectors.toList());
+//        List<Post> list = dal.getListByids(postIds);
+        var page = new PageImpl<Post>(list, pageable, 10);
+        return page;
     }
 
     public List<PostDto> getArchive() {

@@ -14,6 +14,8 @@ public class TagDto extends BaseDto{
 
 
     private String description;
+
+    private int postCount;
 }
 
 

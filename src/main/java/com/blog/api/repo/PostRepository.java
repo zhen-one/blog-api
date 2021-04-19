@@ -29,16 +29,22 @@ public interface PostRepository extends BaseRepository<Post, Integer> {
     public void like(@Param("id") int id);
 
 
-    @Query(value = "select p from Post p INNER JOIN Tag t  "+
-            "where t.tagName=:tagName and publish_state='Published' ")
-    public Page<Post> getListByTag(Pageable pageable, @Param("tagName") String tagName);
+    @Query(value = "select p from Post p   " +
+            "where p.id in:ids ")
+    public List<Post> getListByids(@Param("ids") List<Integer> ids);
+
+    @Query(value = "select post.id from post \n" +
+            "join post_tag_rel on post.id=post_tag_rel.post_id\n" +
+            "join tag on post_tag_rel.tag_id=tag.id\n" +
+            "where post.publish_state='Published'\n" +
+            "and tag.tag_name=:tagName  limit :start,:end", nativeQuery = true)
+    public List<Integer> getPostIdsByTag(@Param("start") int start, @Param("end") int end, @Param("tagName") String tagName);
 
 
+    @Query(value = "select id,title,cover_img,created_at from post where publish_state='Published' order by created_at desc ", nativeQuery = true)
+    public List<Map<String, String>> getArchive();
 
-    @Query(value = "select id,title,cover_img,created_at from post where publish_state='Published' order by created_at desc ",nativeQuery = true)
-    public List<Map<String,String>> getArchive();
-
-    @Query(value = "select count(1) from post where publish_state='Published'  ",nativeQuery = true)
+    @Query(value = "select count(1) from post where publish_state='Published'  ", nativeQuery = true)
     public Integer getPostCount();
 }
 

@@ -17,7 +17,7 @@ public interface CategoryRepository extends BaseRepository<Category, Integer> {
     @Query(value="select category.id,category.category_name, count(1) as post_count from category \n" +
             "inner join post on category.id=post.category_id\n" +
             "where post.publish_state='Published'\n" +
-            "group by category.id,category.category_name\n",nativeQuery = true)
+            "group by category.id,category.category_name order by count(1) desc\n",nativeQuery = true)
     List<Map<String,Object>>  getCategories();
 
 }

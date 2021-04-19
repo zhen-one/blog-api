@@ -22,6 +22,7 @@ public class Tag extends BaseModel {
     @Column
     private String description;
 
+
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);
