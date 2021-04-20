@@ -55,7 +55,7 @@ public class PostDto extends BaseDto{
 
     private List<Tag> tags;
 
-    private Post prev;
+    private PostListDto prev;
 
-    private Post next;
+    private PostListDto next;
 }

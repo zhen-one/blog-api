@@ -45,6 +45,7 @@ public class PostController extends BaseController<PostDto, Post> {
     @Autowired
     public PostController(PostService postService) {
         super.baseService = postService;
+//        this.postService=postService;
     }
 
 
@@ -55,8 +56,8 @@ public class PostController extends BaseController<PostDto, Post> {
      * @return
      * @throws NotFoundException
      */
-    @Override
-    public ResponseResult<PostDto> get(@PathVariable("id") int id) throws NotFoundException {
+    @GetMapping("/view/{id}")
+    public ResponseResult<PostDto> view(@PathVariable("id") int id) throws NotFoundException {
         var post = postService.getById(id);
         post.setViewNum(post.getViewNum() + 1);
         postService.edit(post);
@@ -88,7 +89,7 @@ public class PostController extends BaseController<PostDto, Post> {
      * 公开文章 时间倒叙
      * */
     @GetMapping("/public/list")
-    public ResponseResult<PageResult<PostDto>> getPublicPosts(
+    public ResponseResult<PageResult<PostListDto>> getPublicPosts(
             @PageableDefault(page = 0, value = 10, sort = {"createdAt"}, direction = Sort.Direction.DESC)
                     Pageable pageRequest, @RequestParam Map<String, Object> dto) {
 
@@ -98,9 +99,9 @@ public class PostController extends BaseController<PostDto, Post> {
 
         dto.put("publishState", PublishState.Published);
 
-        var page = postService.getPageList(dto, newPage);
+        var page = postService.publicList(newPage);
 
-        var res = PageResult.toPageResult(page.map(n -> (PostDto) dozerMapper.map(n, PostDto.class)));
+        var res = PageResult.toPageResult(page);
 
         return ResponseUtil.success(res);
     }
@@ -222,7 +223,6 @@ public class PostController extends BaseController<PostDto, Post> {
     }
 
     @Override
-    @Transactional
     @PostMapping("/add")
     public ResponseResult<PostDto> add(@RequestBody @NotNull PostDto dto) {
 

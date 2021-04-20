@@ -10,9 +10,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 
 @Table
@@ -57,11 +55,13 @@ public class Post extends BaseModel {
 
     private int commentNum;
 
-
     @ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
-    @JoinTable(name="post_tag_rel",joinColumns = @JoinColumn(name ="tag_id"),
-            inverseJoinColumns = @JoinColumn(name="post_id"))
+    @JoinTable(name="post_tag_rel",joinColumns = @JoinColumn(name ="post_id"),
+            inverseJoinColumns = @JoinColumn(name="tag_id"))
     private Set<Tag> tags=new HashSet<>();
+
+
+    private String tagNames;
 
 }
 
