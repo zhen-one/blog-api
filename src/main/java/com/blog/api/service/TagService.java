@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class TagService extends BaseService<Tag, Integer> {
 
     private TagRepository dal;
+
 
     @Autowired
     public TagService(TagRepository dal) {//这里必须要使用构造注入。
@@ -42,8 +44,16 @@ public class TagService extends BaseService<Tag, Integer> {
         }).collect(Collectors.toList());
     }
 
+    @Transactional
+    public void clearPostTag(int postId) {
+        dal.clearPostTag(postId);
+    }
 
+    @Transactional
+    public void bindPostTag(int tagId, int postId) {
 
+        dal.bindPostTag(tagId, postId);
+    }
 
 
 }

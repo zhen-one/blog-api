@@ -56,7 +56,7 @@ public class PostController extends BaseController<PostDto, Post> {
      * @return
      * @throws NotFoundException
      */
-    @GetMapping("/view/{id}")
+    @GetMapping("public/view/{id}")
     public ResponseResult<PostDto> view(@PathVariable("id") int id) throws NotFoundException {
         var post = postService.getById(id);
         post.setViewNum(post.getViewNum() + 1);
@@ -229,40 +229,43 @@ public class PostController extends BaseController<PostDto, Post> {
         var category = categoryService.getById(dto.getCategoryId());
         dto.setCategory(category.getCategoryName());
         var post = dozerMapper.map(dto, Post.class);
-
-        post.setTags(new HashSet<>());
-
+        post=postService.add(post);
+        List<String> tagNames = new ArrayList<>();
+        tagService.clearPostTag(post.getId());
         if (dto.getTagIds() != null && dto.getTagIds().length > 0) {
             var tags = new ArrayList<Tag>();
             var tagIds = dto.getTagIds();
             for (int tagId : tagIds) {
+                tagService.bindPostTag(tagId, post.getId());
                 var tag = tagService.getById(tagId);
-                post.getTags().add(tag);
+                tagNames.add(tag.getTagName());
             }
         }
-        return ResponseUtil.success(dozerMapper.map(postService.add(post), PostDto.class));
+        post.setTagNames(String.join(",", tagNames));
+        return ResponseUtil.success(dozerMapper.map(postService.edit(post), PostDto.class));
 
     }
 
     @Override
-    @Transactional
     @PostMapping("/edit")
     public ResponseResult<PostDto> edit(@RequestBody @NotNull PostDto dto) {
 
         var category = categoryService.getById(dto.getCategoryId());
         dto.setCategory(category.getCategoryName());
         var post = dozerMapper.map(dto, Post.class);
-
-        post.setTags(new HashSet<>());
+        tagService.clearPostTag(post.getId());
+        List<String> tagNames = new ArrayList<>();
 
         if (dto.getTagIds() != null && dto.getTagIds().length > 0) {
             var tags = new ArrayList<Tag>();
             var tagIds = dto.getTagIds();
             for (int tagId : tagIds) {
                 var tag = tagService.getById(tagId);
-                post.getTags().add(tag);
+                tagService.bindPostTag(tagId, post.getId());
+                tagNames.add(tag.getTagName());
             }
         }
+        post.setTagNames(String.join(",", tagNames));
         return ResponseUtil.success(dozerMapper.map(postService.edit(post), PostDto.class));
 
     }

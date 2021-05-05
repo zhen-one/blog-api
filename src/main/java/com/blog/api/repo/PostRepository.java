@@ -42,19 +42,25 @@ public interface PostRepository extends BaseRepository<Post, Integer> {
     public List<Integer> getPostIds(@Param("start") int start, @Param("end") int end, @Param("tagName") String tagName);
 
     @Query(value = "select post.id from post \n" +
-            "join post_tag_rel on post.id=post_tag_rel.post_id\n" +
-            "join tag on post_tag_rel.tag_id=tag.id\n" +
+            "join post_tag on post.id=post_tag.post_id\n" +
+            "join tag on post_tag.tag_id=tag.id\n" +
             "where post.publish_state='Published'\n" +
-            "and tag.tag_name=:tagName  limit :start,:end", nativeQuery = true)
+            "and tag.tag_name=:tagName  order by post.created_at desc  limit :start,:end ", nativeQuery = true)
     public List<Integer> getPostIdsByTag(@Param("start") int start, @Param("end") int end, @Param("tagName") String tagName);
 
+    @Query(value = "select count(1) from post\n" +
+            "join post_tag on post.id=post_tag.post_id \n" +
+            "join tag on post_tag.tag_id=tag.id\n" +
+            "where post.publish_state='Published' and tag.tag_name=:tagName ",
+           nativeQuery = true)
+    public Integer getPostCountByTag(@Param("tagName") String tagName);
 
     @Query(value = "select id,created_at,category,tag_names,comment_num,degest,likes,cover_img,title,view_num from post\n" +
             "where publish_state='Published' order by created_at desc   limit :start,:end", nativeQuery = true)
     public List<Map<String,Object>> getPublicPost(@Param("start") int start, @Param("end") int end);
 
     @Query(value = "select count(1) from post\n" +
-            "where publish_state='Published' order by created_at desc ",nativeQuery = true)
+            "where publish_state='Published'  ",nativeQuery = true)
     public Integer getPublicPostCount();
 
     @Query(value = "select id,created_at,category,comment_num,degest,likes,cover_img,title,view_num from post\n" +

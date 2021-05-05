@@ -80,7 +80,7 @@ public class PostService extends BaseService<Post, Integer> {
         return postListDto;
     }
 
-
+    @Transactional
     public int like(int id) {
         dal.like(id);
         return dal.findById(id).get().getLikes();
@@ -105,7 +105,8 @@ public class PostService extends BaseService<Post, Integer> {
         List<Integer> postIds = dal.getPostIdsByTag(start, end, tagName);
         var list = postIds.stream().map(n -> super.getById(n)).collect(Collectors.toList());
 //        List<Post> list = dal.getListByids(postIds);
-        var page = new PageImpl<Post>(list, pageable, 10);
+        int total=dal.getPostCountByTag(tagName);
+        var page = new PageImpl<Post>(list, pageable, total);
         return page;
     }
 

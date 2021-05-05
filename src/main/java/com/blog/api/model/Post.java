@@ -55,10 +55,10 @@ public class Post extends BaseModel {
 
     private int commentNum;
 
-    @ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
-    @JoinTable(name="post_tag_rel",joinColumns = @JoinColumn(name ="post_id"),
-            inverseJoinColumns = @JoinColumn(name="tag_id"))
-    private Set<Tag> tags=new HashSet<>();
+//    @ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
+//    @JoinTable(name="post_tag_rel",joinColumns = @JoinColumn(name ="post_id"),
+//            inverseJoinColumns = @JoinColumn(name="tag_id"))
+//    private Set<Tag> tags=new HashSet<>();
 
 
     private String tagNames;
