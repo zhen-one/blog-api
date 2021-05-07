@@ -1,4 +1,3 @@
-
 jwt:
   header: Authorization
   secret: eyJleHAiOjE1NDMyMDUyODUsInN1YiI6ImFkbWluIiwiY3JlYXRlZCI6MTU0MDYxMzI4N
@@ -45,3 +44,5 @@ oauth:
     clientid: bb333c3876409b062c75
     secret: a899f64e72af296aff90634d8e6961083a439e83
     redirect: http://lvzhenHome.com/oauth
+
+

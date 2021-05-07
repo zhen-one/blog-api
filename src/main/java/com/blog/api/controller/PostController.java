@@ -110,20 +110,16 @@ public class PostController extends BaseController<PostDto, Post> {
      * 分类分章
      * */
     @GetMapping("/public/listByCategory/{category}")
-    public ResponseResult<PageResult<PostDto>> getPublicPostsByCategory(
+    public ResponseResult<PageResult<PostListDto>> getPublicPostsByCategory(
             @PageableDefault(page = 0, value = 10, sort = {"createdAt"}, direction = Sort.Direction.DESC)
                     Pageable pageRequest, @PathVariable String category) {
 
         var newPage =
                 PageRequest.of(Math.max(pageRequest.getPageNumber() - 1, 0), pageRequest.getPageSize(), pageRequest.getSort());
 
-        Map<String, Object> dto = new HashMap<>();
-        dto.put("publishState", PublishState.Published);
-        dto.put("category", category);
+        var page = postService.publicListByCategory(newPage, category);
 
-        var page = postService.getPageList(dto, newPage);
-
-        var res = PageResult.toPageResult(page.map(n -> (PostDto) dozerMapper.map(n, PostDto.class)));
+        var res = PageResult.toPageResult(page);
 
         return ResponseUtil.success(res);
     }
@@ -132,18 +128,15 @@ public class PostController extends BaseController<PostDto, Post> {
      * 标签文章
      * */
     @GetMapping("/public/listByTag/{tag}")
-    public ResponseResult<PageResult<PostDto>> getPublicPostsByTag(
+    public ResponseResult<PageResult<PostListDto>> getPublicPostsByTag(
             @PageableDefault(page = 0, value = 10, sort = {"createdAt"}, direction = Sort.Direction.DESC)
                     Pageable pageRequest, @PathVariable String tag) {
 
-
         var newPage =
                 PageRequest.of(Math.max(pageRequest.getPageNumber() - 1, 0), pageRequest.getPageSize(), pageRequest.getSort());
+        var page = postService.publicListByTag(newPage,tag);
 
-
-        var page = postService.listByTag(tag, newPage);
-
-        var res = PageResult.toPageResult(page.map(n -> (PostDto) dozerMapper.map(n, PostDto.class)));
+        var res = PageResult.toPageResult(page);
 
         return ResponseUtil.success(res);
     }

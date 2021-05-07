@@ -80,7 +80,7 @@ public class PostService extends BaseService<Post, Integer> {
         return postListDto;
     }
 
-    @Transactional
+//    @Transactional
     public int like(int id) {
         dal.like(id);
         return dal.findById(id).get().getLikes();
@@ -99,16 +99,16 @@ public class PostService extends BaseService<Post, Integer> {
 //    }
 
 
-    public Page<Post> listByTag(String tagName, Pageable pageable) {
-        int start = pageable.getPageNumber() * pageable.getPageSize();
-        int end = pageable.getPageNumber() + 1 * pageable.getPageSize();
-        List<Integer> postIds = dal.getPostIdsByTag(start, end, tagName);
-        var list = postIds.stream().map(n -> super.getById(n)).collect(Collectors.toList());
-//        List<Post> list = dal.getListByids(postIds);
-        int total=dal.getPostCountByTag(tagName);
-        var page = new PageImpl<Post>(list, pageable, total);
-        return page;
-    }
+//    public Page<Post> listByTag(String tagName, Pageable pageable) {
+//        int start = pageable.getPageNumber() * pageable.getPageSize();
+//        int end = pageable.getPageNumber() + 1 * pageable.getPageSize();
+//        List<Integer> postIds = dal.getPostIdsByTag(start, end, tagName);
+//        var list = postIds.stream().map(n -> super.getById(n)).collect(Collectors.toList());
+////        List<Post> list = dal.getListByids(postIds);
+//        int total=dal.getPostCountByTag(tagName);
+//        var page = new PageImpl<Post>(list, pageable, total);
+//        return page;
+//    }
 
     public Page<PostListDto> publicList(Pageable pageable) {
         int start = pageable.getPageNumber() * pageable.getPageSize();
@@ -137,6 +137,60 @@ public class PostService extends BaseService<Post, Integer> {
         return page;
     }
 
+    public Page<PostListDto> publicListByCategory(Pageable pageable,String category) {
+        int start = pageable.getPageNumber() * pageable.getPageSize();
+        int end = pageable.getPageNumber() + 1 * pageable.getPageSize();
+        List<Map<String, Object>> maps = dal.getPublicPostByCategory(start, end,category);
+        List<PostListDto> posts = new ArrayList<>();
+        maps.stream().forEach(n -> {
+            PostListDto postListDto = new PostListDto();
+            postListDto.setId(n.get("id"));
+            postListDto.setCreatedAt(n.get("created_at"));
+            postListDto.setCategory(n.get("category"));
+            postListDto.setCommentNum(n.get("comment_num"));
+            postListDto.setCoverImg(n.get("cover_img"));
+            postListDto.setTitle(n.get("title"));
+            postListDto.setView_num(n.get("view_num"));
+            postListDto.setLikes(n.get("likes"));
+            postListDto.setTitle(n.get("title"));
+            postListDto.setDegest(n.get("degest"));
+            postListDto.setTagNames(Arrays.asList(n.get("tag_names").toString().split(",")));
+            posts.add(postListDto);
+
+        });
+        int total = dal.getPublicPostCount();
+//        List<Post> list = dal.getListByids(postIds);
+        var page = new PageImpl<PostListDto>(posts, pageable, total);
+        return page;
+    }
+
+
+    public Page<PostListDto> publicListByTag(Pageable pageable,String tagName) {
+        int start = pageable.getPageNumber() * pageable.getPageSize();
+        int end = pageable.getPageNumber() + 1 * pageable.getPageSize();
+        List<Map<String, Object>> maps = dal.getPublicPostByTag(start, end,tagName);
+        List<PostListDto> posts = new ArrayList<>();
+        maps.stream().forEach(n -> {
+            PostListDto postListDto = new PostListDto();
+            postListDto.setId(n.get("id"));
+            postListDto.setCreatedAt(n.get("created_at"));
+            postListDto.setCategory(n.get("category"));
+            postListDto.setCommentNum(n.get("comment_num"));
+            postListDto.setCoverImg(n.get("cover_img"));
+            postListDto.setTitle(n.get("title"));
+            postListDto.setView_num(n.get("view_num"));
+            postListDto.setLikes(n.get("likes"));
+            postListDto.setTitle(n.get("title"));
+            postListDto.setDegest(n.get("degest"));
+            postListDto.setTagNames(Arrays.asList(n.get("tag_names").toString().split(",")));
+            posts.add(postListDto);
+
+        });
+        int total = dal.getPublicPostCount();
+//        List<Post> list = dal.getListByids(postIds);
+        var page = new PageImpl<PostListDto>(posts, pageable, total);
+        return page;
+    }
     public List<PostDto> getArchive() {
         var maps = this.dal.getArchive();
         return maps.stream().map(n -> {
