@@ -80,7 +80,7 @@ public class PostService extends BaseService<Post, Integer> {
         return postListDto;
     }
 
-//    @Transactional
+//
     public int like(int id) {
         dal.like(id);
         return dal.findById(id).get().getLikes();

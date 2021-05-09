@@ -44,12 +44,12 @@ public class TagService extends BaseService<Tag, Integer> {
         }).collect(Collectors.toList());
     }
 
-    @Transactional
+
     public void clearPostTag(int postId) {
         dal.clearPostTag(postId);
     }
 
-    @Transactional
+
     public void bindPostTag(int tagId, int postId) {
 
         dal.bindPostTag(tagId, postId);

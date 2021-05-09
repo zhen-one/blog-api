@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ public interface PostRepository extends BaseRepository<Post, Integer> {
     @Query(value = "select id,created_at,category,tag_names,comment_num,degest,likes,cover_img,title,view_num from Post p  where p.publish_state='Published' and p.id>:id order by p.id asc  limit 1", nativeQuery = true)
     Map<String,Object> getNext(@Param("id") int id);
 
+    @Transactional
     @Modifying
     @Query(value = "update Post  set likes=likes+1 where Post.id=:id ", nativeQuery = true)
     public void like(@Param("id") int id);

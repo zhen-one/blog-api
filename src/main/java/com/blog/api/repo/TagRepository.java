@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 
@@ -20,10 +21,12 @@ public interface TagRepository extends BaseRepository<Tag, Integer> {
             "order by count(1) desc",nativeQuery = true)
     List<Map<String,Object>> getTags();
 
+    @Transactional
     @Modifying
     @Query(value="delete from  post_Tag where post_Id=:postId",nativeQuery = true)
     void clearPostTag(@Param("postId") int postId);
 
+    @Transactional
     @Modifying
     @Query(value="insert into post_Tag(tag_id,post_id) values (:tagId,:postId)",nativeQuery = true)
     void bindPostTag(@Param("tagId") int tagId,@Param("postId") int postId);
